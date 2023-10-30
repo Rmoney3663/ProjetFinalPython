@@ -37,7 +37,7 @@
                     },
                     success: function (reponse){
                         console.log("ok")
-                        jeton = reponse.jeton;
+                        jeton = reponse;
                     },
                     error: function (){
                         console.log("ok1")
@@ -166,7 +166,7 @@
                     xhr.setRequestHeader('Authorization', 'Basic ' + infos);
                 },
                 success: function (reponse){
-                    jeton = reponse.jeton;
+                    jeton = reponse;
                 },
                 error: function(){
                     $(element_dst).text("Erreur de chargement.");

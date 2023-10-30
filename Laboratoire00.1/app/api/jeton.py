@@ -18,7 +18,7 @@ def get_jeton():
     jeton = basic_auth.current_user().get_jeton()
 
     db.session.commit()
-    return jsonify({'jeton': jeton})
+    return jsonify(jeton)
 
 @bp.route('/jeton', methods=['DELETE'])
 @token_auth.login_required
@@ -31,4 +31,4 @@ def effacer_jeton():
 @cross_origin()
 @token_auth.login_required
 def jeton_user(leJeton):  
-    return jsonify(Utilisateur.query.filter_by(jeton=leJeton).first_or_404().to_dict_pour_jeton())
+    return jsonify(Utilisateur.query.filter_by(jeton=leJeton).first_or_404().to_dict())

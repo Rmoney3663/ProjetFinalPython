@@ -6,6 +6,28 @@ import logo from '../assets/logoPG.png';
 import anonyme from '../assets/anonyme.png';
 import { useNavigate } from "react-router-dom";
 
+async function getJson(url, obj, message, setEnChargement, setFlash, setEtat){
+    try
+    {
+        setEnChargement(true)
+        setFlash('')
+        setEtat('')
+        let reponse = await fetch(url, obj);
+        let reponseJson = await reponse.json();
+        setEnChargement(false)
+
+        if (reponseJson.erreur === undefined)
+        {
+			setEtat(reponseJson)
+            setFlash(message)
+        }
+        else
+            setFlash(reponseJson.erreur)
+        return (reponseJson);        
+    } catch(erreur){
+        console.error(erreur);
+    }
+}
 
 const validationSchema = yup.object().shape({
     nom: yup
@@ -46,13 +68,12 @@ const Login = () => {
         };
 
         alert(nom_mdp);
-        getJson(url, obj, 'Utilisateur et mot de passe chargé.', 'jeton');
+        getJson(url, obj, 'Utilisateur et mot de passe chargé.', setEnChargement, setFlash, setJeton);
     };
 
     const quitterSession = () => {
         alert('quitter session');
         setJeton('');
-        setAnonyme(true);
         setUtilisateur(null);
         setFlash('');
     };
@@ -73,7 +94,7 @@ const Login = () => {
                     'Authorization': 'Bearer ' + jeton,
                 },
             };
-            getJson(url, obj, 'Utilisateur chargé.', 'utilisateur');
+            getJson(url, obj, 'Utilisateur chargé.', setEnChargement, setFlash, setUtilisateur);
         }
     };
 

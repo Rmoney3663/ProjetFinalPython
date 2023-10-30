@@ -1,7 +1,6 @@
 from app.api import bp
 from app.models import Utilisateur
-from flask import jsonify
-from flask import request
+from flask import jsonify, request
 from app.api.auth import token_auth
 from flask_cors import cross_origin
 
@@ -27,7 +26,20 @@ def get_utilisateurss():
 
 @bp.route('/utilisateurs', methods=['POST'])
 def creer_utilisateur():
-    return "creer"
+	data = request.json  # Assuming you are sending JSON data in the request
+	nom = data.get("Nom")
+	courriel = data.get("Courriel")
+	password = data.get("Password")
+
+	if courriel is not None:
+		u = Utilisateur(nom=nom, courriel=courriel)
+	else:
+		u = Utilisateur(nom=nom)
+
+	u.enregister_mot_de_passe(password)
+	db.session.add(u)
+	db.session.commit()
+	return "creer"
 
 @bp.route('/utilisateurs/<int:id>', methods=['PUT'])
 def modifier_utilisateur(id):
