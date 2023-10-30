@@ -2,8 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View, Button, Image, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import logo from './assets/logoPG.png'
-import anonyme from './assets/anonyme.png'
+import logo from '../assets/logoPG.png'
+import anonyme from '../assets/anonyme.png'
 
 const validationSchema = yup.object().shape({
     nom: yup
@@ -26,7 +26,7 @@ async function getJson(url, obj, thisRef, message, etat){
         let reponseJson = await reponse.json();
         thisRef.setState({enChargement:false})
 
-        if (typeof reponseJson.erreur === 'undefined')
+        if (reponseJson.erreur === undefined)
         {
             thisRef.setState({[etat]:reponseJson[etat]})
             thisRef.setState({flash:message})
@@ -41,7 +41,7 @@ async function getJson(url, obj, thisRef, message, etat){
 
 async function chargerUtilisateur(thisRef)
 {
-    if (thisRef.state.jeton !='')
+    if (thisRef.state.jeton !='' && thisRef.state.utilisateur === null)
     {
         alert("charger utilisateur")
 
@@ -61,13 +61,12 @@ async function chargerUtilisateur(thisRef)
 
 export default class Login extends React.Component{
     constructor(props){
-        super(props)
+        super(props);
         this.state = {
             flash:'', 
             jeton:'', 
-            utilisateur:'', 
-            enChargement:false, 
-            anonyme:true
+            utilisateur:null, 
+            enChargement:false
         }
     }
 
@@ -76,9 +75,8 @@ export default class Login extends React.Component{
     }
 
     componentDidUpdate(){
-        if (this.state.anonyme && this.state.jeton != '')
-        {
-            this.setState({anonyme:false})
+        if (this.state.jeton != '')
+        {	
             chargerUtilisateur(this)
         }
     }
@@ -86,7 +84,7 @@ export default class Login extends React.Component{
     demarrerSession(valeurs, thisRef)
     {
         var nom_mdp = valeurs["nom"] + ':' + valeurs["mdp"];
-        var nom_mdp_base64 = btoa(nom_mdp)
+        var nom_mdp_base64 = btoa(nom_mdp);
 
         var url = 'http://127.0.0.1:5000/api/jeton'
         var obj = {
@@ -98,22 +96,24 @@ export default class Login extends React.Component{
             },
         };
         alert(nom_mdp)
-        var reponse = getJson(url, obj, thisRef, 'Utilisateur et mot de passe chargé.', 'utilisateur')
+        var reponse = getJson(url, obj, thisRef, 'Utilisateur et mot de passe chargé.', 'jeton')
 
     }
 
     quitterSession(thisRef)
     {
-        alert('quitter session')
-        thisRef.setState({anomyme:true})
-        thisRef.setState({jeton:''})
-        thisRef.setState({utilisateur:''})
-        thisRef.setState({flash:''})
+        alert('quitter session')		
+		thisRef.setState({jeton:''})
+        thisRef.setState({anomyme:true})        
+        thisRef.setState({utilisateur:null})
+		thisRef.setState({flash:''})
+		//resetForm();
+
     }
 
     render()
     {
-        if(this.state.anomyme || typeof this.state.utilisateur === 'undefined'){
+        if(this.state.utilisateur === null){
             return(
                 <View style={styles.container}>
                     <Image source={logo} style={styles.logo}/>
@@ -137,7 +137,7 @@ export default class Login extends React.Component{
 
                                         placeholder="Utilisateur..."
                                         placeholderTextColor="#bbbbbb"
-                                        onChangeText={formikProps.handlechange('nom')}
+                                        onChangeText={formikProps.handleChange('nom')}
                                     />                                    
                                 </View>
                                 <Text style={styles.erreur}>{formikProps.errors.nom}</Text>
@@ -147,7 +147,7 @@ export default class Login extends React.Component{
                                         style={styles.inputText}
                                         placeholder="Mot de passe..."
                                         placeholderTextColor="#bbbbbb"
-                                        onChangeText={formikProps.handlechange('mdp')}
+                                        onChangeText={formikProps.handleChange('mdp')}
                                     />                                    
                                 </View>
                                 <Text style={styles.erreur}>{formikProps.errors.mdp}</Text>
@@ -156,8 +156,8 @@ export default class Login extends React.Component{
                                     <Text style={styles.nouvelUtilisateur}>Nouvel utilisateur</Text>
                                 </TouchableOpacity>
                                 {this.state.enChargement ? (<ActivityIndicator/>) :(
-                                    <TouchableOpacity style={styles.loginBtn}>
-                                         <Text style={styles.loginText} onPress={formikProps.handleSubmit}>Établir une session</Text>
+                                    <TouchableOpacity style={styles.loginBtn} onPress={formikProps.handleSubmit}>
+                                         <Text style={styles.loginText} >Établir une session</Text>
                                     </TouchableOpacity>
                                 )}
 
@@ -175,8 +175,8 @@ export default class Login extends React.Component{
                     <Text style={styles.flash}>Flash: {this.state.flash}</Text><br/>
                     <Text style={styles.flash}>Utilisateur: {this.state.utilisateur.nom}</Text>
                     <Text style={styles.jeton}>Jeton: {this.state.jeton}</Text>
-                    <TouchableOpacity style={styles.loginBtn}>
-                        <Text style={styles.loginText} onPress={()=> this.quitterSession(this)}>Quitter la session</Text>
+                    <TouchableOpacity style={styles.loginBtn}  onPress={()=> this.quitterSession(this)}> 
+                        <Text style={styles.loginText}>Quitter la session</Text>
                     </TouchableOpacity>
                 
                 </View>)
@@ -245,4 +245,4 @@ const styles = StyleSheet.create({
     },
 
 
-})
+});

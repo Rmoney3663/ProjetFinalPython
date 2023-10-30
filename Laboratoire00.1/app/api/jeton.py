@@ -4,6 +4,7 @@ from app import db
 from app.api.auth import basic_auth
 from app.api.auth import token_auth
 from flask_cors import cross_origin
+from app.models import Utilisateur
 
 @bp.route('/jeton2', methods=['GET'])
 def get_jeton2():
@@ -28,6 +29,6 @@ def effacer_jeton():
 
 @bp.route('/jeton_user/<leJeton>', methods=['GET'])
 @cross_origin()
-@basic_auth.login_required
+@token_auth.login_required
 def jeton_user(leJeton):  
     return jsonify(Utilisateur.query.filter_by(jeton=leJeton).first_or_404().to_dict_pour_jeton())
