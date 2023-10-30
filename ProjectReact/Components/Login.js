@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, Image, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import logo from '../assets/logoPG.png'
-import anonyme from '../assets/anonyme.png'
+import logo from '../assets/logoPG.png';
+import anonyme from '../assets/anonyme.png';
+import { useNavigate } from "react-router-dom";
+
 
 const validationSchema = yup.object().shape({
     nom: yup
@@ -16,173 +18,134 @@ const validationSchema = yup.object().shape({
         .label('Nom'),
 });
 
-async function getJson(url, obj, thisRef, message, etat){
-    try
-    {
-        thisRef.setState({enChargement:true})
-        thisRef.setState({flash:''})
-        thisRef.setState({[etat]:''})
-        let reponse = await fetch(url, obj);
-        let reponseJson = await reponse.json();
-        thisRef.setState({enChargement:false})
+const Login = () => {
+	const navigate = useNavigate();
+    const [flash, setFlash] = useState('');
+    const [jeton, setJeton] = useState('');
+    const [utilisateur, setUtilisateur] = useState(null);
+    const [enChargement, setEnChargement] = useState(false);
 
-        if (reponseJson.erreur === undefined)
-        {
-            thisRef.setState({[etat]:reponseJson[etat]})
-            thisRef.setState({flash:message})
+    useEffect(() => {
+        if (jeton !== '') {
+            chargerUtilisateur();
         }
-        else
-            thisRef.setState({flash:reponseJson.erreur})
-        return (reponseJson);        
-    } catch(erreur){
-        console.error(erreur);
-    }
-}
+    }, [jeton]);
 
-async function chargerUtilisateur(thisRef)
-{
-    if (thisRef.state.jeton !='' && thisRef.state.utilisateur === null)
-    {
-        alert("charger utilisateur")
+    const demarrerSession = (valeurs) => {
+        const nom_mdp = valeurs["nom"] + ':' + valeurs["mdp"];
+        const nom_mdp_base64 = btoa(nom_mdp);
 
-        var url = "http://127.0.0.1:5000/api/jeton_user/" + thisRef.state.jeton
-
-        var obj = {
+        const url = 'http://127.0.0.1:5000/api/jeton';
+        const obj = {
             method: 'GET',
-            headers:{
-                Accept:'application/json',
-                'Content-Type':'application/json',
-                'Authorization': 'Bearer ' + thisRef.state.jeton,
-            },
-        };
-        var reponse = getJson(url, obj, thisRef, 'Utilisateur chargé.', 'utilisateur')
-    }
-}
-
-export default class Login extends React.Component{
-    constructor(props){
-        super(props);
-        this.state = {
-            flash:'', 
-            jeton:'', 
-            utilisateur:null, 
-            enChargement:false
-        }
-    }
-
-    componentDidMount(){
-
-    }
-
-    componentDidUpdate(){
-        if (this.state.jeton != '')
-        {	
-            chargerUtilisateur(this)
-        }
-    }
-
-    demarrerSession(valeurs, thisRef)
-    {
-        var nom_mdp = valeurs["nom"] + ':' + valeurs["mdp"];
-        var nom_mdp_base64 = btoa(nom_mdp);
-
-        var url = 'http://127.0.0.1:5000/api/jeton'
-        var obj = {
-            method: 'GET',
-            headers:{
-                Accept:'application/json',
-                'Content-Type':'application/json',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + nom_mdp_base64,
             },
         };
-        alert(nom_mdp)
-        var reponse = getJson(url, obj, thisRef, 'Utilisateur et mot de passe chargé.', 'jeton')
 
-    }
+        alert(nom_mdp);
+        getJson(url, obj, 'Utilisateur et mot de passe chargé.', 'jeton');
+    };
 
-    quitterSession(thisRef)
-    {
-        alert('quitter session')		
-		thisRef.setState({jeton:''})
-        thisRef.setState({anomyme:true})        
-        thisRef.setState({utilisateur:null})
-		thisRef.setState({flash:''})
-		//resetForm();
+    const quitterSession = () => {
+        alert('quitter session');
+        setJeton('');
+        setAnonyme(true);
+        setUtilisateur(null);
+        setFlash('');
+    };
 
-    }
+    const ajouter = () => {        
+        navigate("/Ajouter");
+    };
 
-    render()
-    {
-        if(this.state.utilisateur === null){
-            return(
-                <View style={styles.container}>
-                    <Image source={logo} style={styles.logo}/>
-                    <Image source={anonyme} style={styles.avatar}/>
-                    <Text style={styles.flash}>Flash: {this.state.flash}</Text><br/>
-
-                    <Formik
-                        initialValues={{ nom: '', mdp: ''}}
-
-                        onSubmit={(values, actions) =>{
-                            this.demarrerSession(values, this)
-                        }}
-
-                        validationSchema={validationSchema}
-                    >
-                        {formikProps => (
-                            <React.Fragment >
-                                <View style={styles.inputView}>
-                                    <TextInput 
-                                        style={styles.inputText}
-
-                                        placeholder="Utilisateur..."
-                                        placeholderTextColor="#bbbbbb"
-                                        onChangeText={formikProps.handleChange('nom')}
-                                    />                                    
-                                </View>
-                                <Text style={styles.erreur}>{formikProps.errors.nom}</Text>
-                                <View style={styles.inputView}>
-                                    <TextInput 
-                                        secureTextEntry={true}
-                                        style={styles.inputText}
-                                        placeholder="Mot de passe..."
-                                        placeholderTextColor="#bbbbbb"
-                                        onChangeText={formikProps.handleChange('mdp')}
-                                    />                                    
-                                </View>
-                                <Text style={styles.erreur}>{formikProps.errors.mdp}</Text>
-                                
-                                <TouchableOpacity>
-                                    <Text style={styles.nouvelUtilisateur}>Nouvel utilisateur</Text>
-                                </TouchableOpacity>
-                                {this.state.enChargement ? (<ActivityIndicator/>) :(
-                                    <TouchableOpacity style={styles.loginBtn} onPress={formikProps.handleSubmit}>
-                                         <Text style={styles.loginText} >Établir une session</Text>
-                                    </TouchableOpacity>
-                                )}
-
-                            </React.Fragment>
-                        )}
-                    </Formik>
-                </View>)
+    const chargerUtilisateur = () => {
+        if (jeton !== '' && utilisateur === null) {
+            alert("charger utilisateur");
+            const url = "http://127.0.0.1:5000/api/jeton_user/" + jeton;
+            const obj = {
+                method: 'GET',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + jeton,
+                },
+            };
+            getJson(url, obj, 'Utilisateur chargé.', 'utilisateur');
         }
-        else
-        {
-            return (
-                <View style={styles.container}>
-                    <Image source={logo} style={styles.logo}/>
-                    <Image source={this.state.utilisateur.avatar} style={styles.avatar}/>
-                    <Text style={styles.flash}>Flash: {this.state.flash}</Text><br/>
-                    <Text style={styles.flash}>Utilisateur: {this.state.utilisateur.nom}</Text>
-                    <Text style={styles.jeton}>Jeton: {this.state.jeton}</Text>
-                    <TouchableOpacity style={styles.loginBtn}  onPress={()=> this.quitterSession(this)}> 
-                        <Text style={styles.loginText}>Quitter la session</Text>
-                    </TouchableOpacity>
+    };
+
+    if (utilisateur === null) {
+        return (
+            <View style={styles.container}>
+                <Image source={logo} style={styles.logo} />
+                <Image source={anonyme} style={styles.avatar} />
+                <Text style={styles.flash}>Flash: {flash}</Text>
                 
-                </View>)
-        }
-    }    
-} 
+
+                <Formik
+                    initialValues={{ nom: '', mdp: '' }}
+
+                    onSubmit={(values, actions) => {
+                        demarrerSession(values);
+                    }}
+
+                    validationSchema={validationSchema}
+                >
+                    {formikProps => (
+                        <React.Fragment>
+                            <View style={styles.inputView}>
+                                <TextInput
+                                    style={styles.inputText}
+                                    placeholder="Utilisateur..."
+                                    placeholderTextColor="#bbbbbb"
+                                    onChangeText={formikProps.handleChange('nom')}
+                                />
+                            </View>
+                            <Text style={styles.erreur}>{formikProps.errors.nom}</Text>
+
+                            <View style={styles.inputView}>
+                                <TextInput
+                                    secureTextEntry={true}
+                                    style={styles.inputText}
+                                    placeholder="Mot de passe..."
+                                    placeholderTextColor="#bbbbbb"
+                                    onChangeText={formikProps.handleChange('mdp')}
+                                />
+                            </View>
+                            <Text style={styles.erreur}>{formikProps.errors.mdp}</Text>
+
+                            <TouchableOpacity style={styles.loginBtn} onPress={ajouter}>
+                                <Text style={styles.loginText}>Nouvel utilisateur</Text>
+                            </TouchableOpacity>
+
+                            {enChargement ? (<ActivityIndicator />) : (
+                                <TouchableOpacity style={styles.loginBtn} onPress={formikProps.handleSubmit}>
+                                    <Text style={styles.loginText}>Établir une session</Text>
+                                </TouchableOpacity>
+                            )}
+                        </React.Fragment>
+                    )}
+                </Formik>
+            </View>
+        );
+    } else {
+        return (
+            <View style={styles.container}>
+                <Image source={logo} style={styles.logo} />
+                <Image source={utilisateur.avatar} style={styles.avatar} />
+                <Text style={styles.flash}>Flash: {flash}</Text>
+                <Text style={styles.flash}>Utilisateur: {utilisateur.nom}</Text>
+                <Text style={styles.jeton}>Jeton: {jeton}</Text>
+                <TouchableOpacity style={styles.loginBtn} onPress={quitterSession}>
+                    <Text style={styles.loginText}>Quitter la session</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
+};
 
 const styles = StyleSheet.create({
     container:{
@@ -246,3 +209,5 @@ const styles = StyleSheet.create({
 
 
 });
+export default Login;
+
