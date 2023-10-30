@@ -1,0 +1,3 @@
+FLASK_APP=partie2.py
+FLASK_DEBUG=true
+FLASK_ENV=development

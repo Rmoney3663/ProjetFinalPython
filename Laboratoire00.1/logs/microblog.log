@@ -1,0 +1,85 @@
+2023-09-18 14:44:25,943 ERROR: Exception on /etablir_session [GET] [in /home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/flask/app.py:1745]
+Traceback (most recent call last):
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1966, in _exec_single_context
+    cursor, str_statement, effective_parameters, context
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such table: partisans
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/flask/app.py", line 2529, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/flask/app.py", line 1815, in full_dispatch_request
+    self.ensure_sync(func)()
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/partie2.py", line 19, in initialisation
+    db.session.execute(requete)
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/orm/scoping.py", line 744, in execute
+    _add_event=_add_event,
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/orm/session.py", line 2268, in execute
+    _add_event=_add_event,
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/orm/session.py", line 2154, in _execute_internal
+    statement, params or {}, execution_options=execution_options
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1415, in execute
+    execution_options or NO_OPTIONS,
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/sql/elements.py", line 516, in _execute_on_connection
+    self, distilled_params, execution_options
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1645, in _execute_clauseelement
+    cache_hit=cache_hit,
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1845, in _execute_context
+    dialect, context, statement, parameters
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1985, in _exec_single_context
+    e, str_statement, effective_parameters, cursor, context
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 2339, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1966, in _exec_single_context
+    cursor, str_statement, effective_parameters, context
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: partisans
+[SQL: delete from partisans]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2023-09-18 14:44:26,294 ERROR: Exception on /static/css/styles.css [GET] [in /home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/flask/app.py:1745]
+Traceback (most recent call last):
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1966, in _exec_single_context
+    cursor, str_statement, effective_parameters, context
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such table: partisans
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/flask/app.py", line 2529, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/flask/app.py", line 1815, in full_dispatch_request
+    self.ensure_sync(func)()
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/partie2.py", line 19, in initialisation
+    db.session.execute(requete)
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/orm/scoping.py", line 744, in execute
+    _add_event=_add_event,
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/orm/session.py", line 2268, in execute
+    _add_event=_add_event,
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/orm/session.py", line 2154, in _execute_internal
+    statement, params or {}, execution_options=execution_options
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1415, in execute
+    execution_options or NO_OPTIONS,
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/sql/elements.py", line 516, in _execute_on_connection
+    self, distilled_params, execution_options
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1645, in _execute_clauseelement
+    cache_hit=cache_hit,
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1845, in _execute_context
+    dialect, context, statement, parameters
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1985, in _exec_single_context
+    e, str_statement, effective_parameters, cursor, context
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 2339, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/base.py", line 1966, in _exec_single_context
+    cursor, str_statement, effective_parameters, context
+  File "/home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/venv/lib/python3.7/site-packages/sqlalchemy/engine/default.py", line 921, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: partisans
+[SQL: delete from partisans]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2023-09-18 15:12:14,740 INFO: Démarrage de petits Gazoullis [in /home/etudiant/Bureau/420-5PC/Laboratoires/Laboratoire00.1/app/__init__.py:43]

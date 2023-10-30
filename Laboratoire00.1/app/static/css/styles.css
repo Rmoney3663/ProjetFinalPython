@@ -1,0 +1,13 @@
+body {
+    background-image: url("../images/gg.jpg");
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.websocket
+{
+    font-size:2em;
+    color:white;
+}
