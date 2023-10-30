@@ -8,7 +8,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-		<Route path="/Ajouter" element={ Ajouter />} />
+		<Route path="/Ajouter" element={<Ajouter />} />
         {/* Define your other routes here */}
       </Routes>
     </Router>
