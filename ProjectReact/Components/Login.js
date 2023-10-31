@@ -5,13 +5,13 @@ import * as yup from 'yup';
 import logo from '../assets/logoPG.png';
 import anonyme from '../assets/anonyme.png';
 import { useNavigate } from "react-router-dom";
+import NavigationBar from './NavigationBar';
 
 async function getJson(url, obj, message, setEnChargement, setFlash, setEtat){
     try
     {
         setEnChargement(true)
         setFlash('')
-        setEtat('')
         let reponse = await fetch(url, obj);
         let reponseJson = await reponse.json();
         setEnChargement(false)
@@ -20,6 +20,7 @@ async function getJson(url, obj, message, setEnChargement, setFlash, setEtat){
         {
 			setEtat(reponseJson)
             setFlash(message)
+			console.log(reponseJson)
         }
         else
             setFlash(reponseJson.erreur)
@@ -48,10 +49,15 @@ const Login = () => {
     const [enChargement, setEnChargement] = useState(false);
 
     useEffect(() => {
-        if (jeton !== '') {
+		//alert("use effect")
+        if (jeton !== '' && utilisateur === null) {
             chargerUtilisateur();
         }
-    }, [jeton]);
+		else if(utilisateur !== null){
+			navigate('/', { state:{ jeton:jeton, utilisateur:utilisateur }});
+		}
+		
+    });
 
     const demarrerSession = (valeurs) => {
         const nom_mdp = valeurs["nom"] + ':' + valeurs["mdp"];
@@ -83,80 +89,80 @@ const Login = () => {
     };
 
     const chargerUtilisateur = () => {
-        if (jeton !== '' && utilisateur === null) {
-            alert("charger utilisateur");
-            const url = "http://127.0.0.1:5000/api/jeton_user/" + jeton;
-            const obj = {
-                method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + jeton,
-                },
-            };
-            getJson(url, obj, 'Utilisateur chargé.', setEnChargement, setFlash, setUtilisateur);
-        }
+        alert("charger utilisateur");
+        const url = "http://127.0.0.1:5000/api/jeton_user/" + jeton;
+        const obj = {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + jeton,
+            },
+        };
+        getJson(url, obj, 'Utilisateur chargé.', setEnChargement, setFlash, setUtilisateur);
+        
     };
 
-    if (utilisateur === null) {
-        return (
-            <View style={styles.container}>
-                <Image source={logo} style={styles.logo} />
-                <Image source={anonyme} style={styles.avatar} />
-                <Text style={styles.flash}>Flash: {flash}</Text>
-                
+    return (
+        <View style={styles.container}>
+			<NavigationBar />
+            <Image source={logo} style={styles.logo} />
+            <Image source={anonyme} style={styles.avatar} />
+            <Text style={styles.flash}>Flash: {flash}</Text>
+            
 
-                <Formik
-                    initialValues={{ nom: '', mdp: '' }}
+            <Formik
+                initialValues={{ nom: '', mdp: '' }}
 
-                    onSubmit={(values, actions) => {
-                        demarrerSession(values);
-                    }}
+                onSubmit={(values, actions) => {
+                    demarrerSession(values);
+                }}
 
-                    validationSchema={validationSchema}
-                >
-                    {formikProps => (
-                        <React.Fragment>
-                            <View style={styles.inputView}>
-                                <TextInput
-                                    style={styles.inputText}
-                                    placeholder="Utilisateur..."
-                                    placeholderTextColor="#bbbbbb"
-									value={formikProps.values.nom}
-                                    onChangeText={formikProps.handleChange('nom')}
-                                />
-                            </View>
-                            <Text style={styles.erreur}>{formikProps.errors.nom}</Text>
+                validationSchema={validationSchema}
+            >
+                {formikProps => (
+                    <React.Fragment>
+                        <View style={styles.inputView}>
+                            <TextInput
+                                style={styles.inputText}
+                                placeholder="Utilisateur..."
+                                placeholderTextColor="#bbbbbb"
+								value={formikProps.values.nom}
+                                onChangeText={formikProps.handleChange('nom')}
+                            />
+                        </View>
+                        <Text style={styles.erreur}>{formikProps.errors.nom}</Text>
 
-                            <View style={styles.inputView}>
-                                <TextInput
-                                    secureTextEntry={true}
-                                    style={styles.inputText}
-                                    placeholder="Mot de passe..."
-                                    placeholderTextColor="#bbbbbb"
-									value={formikProps.values.mdp}
-                                    onChangeText={formikProps.handleChange('mdp')}
-                                />
-                            </View>
-                            <Text style={styles.erreur}>{formikProps.errors.mdp}</Text>
+                        <View style={styles.inputView}>
+                            <TextInput
+                                secureTextEntry={true}
+                                style={styles.inputText}
+                                placeholder="Mot de passe..."
+                                placeholderTextColor="#bbbbbb"
+								value={formikProps.values.mdp}
+                                onChangeText={formikProps.handleChange('mdp')}
+                            />
+                        </View>
+                        <Text style={styles.erreur}>{formikProps.errors.mdp}</Text>
 
-                            <TouchableOpacity style={styles.loginBtn} onPress={ajouter}>
-                                <Text style={styles.loginText}>Nouvel utilisateur</Text>
+                        <TouchableOpacity style={styles.loginBtn} onPress={ajouter}>
+                            <Text style={styles.loginText}>Nouvel utilisateur</Text>
+                        </TouchableOpacity>
+
+                        {enChargement ? (<ActivityIndicator />) : (
+                            <TouchableOpacity style={styles.loginBtn} onPress={formikProps.handleSubmit}>
+                                <Text style={styles.loginText}>Établir une session</Text>
                             </TouchableOpacity>
-
-                            {enChargement ? (<ActivityIndicator />) : (
-                                <TouchableOpacity style={styles.loginBtn} onPress={formikProps.handleSubmit}>
-                                    <Text style={styles.loginText}>Établir une session</Text>
-                                </TouchableOpacity>
-                            )}
-                        </React.Fragment>
-                    )}
-                </Formik>
-            </View>
-        );
-    } else {
+                        )}
+                    </React.Fragment>
+                )}
+            </Formik>
+        </View>
+    );
+     
+	/*else {
         return (
-            <View style={styles.container}>
+           <View style={styles.container}>
                 <Image source={logo} style={styles.logo} />
                 <Image source={utilisateur.avatar} style={styles.avatar} />
                 <Text style={styles.flash}>Flash: {flash}</Text>
@@ -166,8 +172,10 @@ const Login = () => {
                     <Text style={styles.loginText}>Quitter la session</Text>
                 </TouchableOpacity>
             </View>
+			
+			
         );
-    }
+    }*/
 };
 
 const styles = StyleSheet.create({
