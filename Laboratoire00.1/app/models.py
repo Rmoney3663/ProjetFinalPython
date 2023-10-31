@@ -97,6 +97,21 @@ class Utilisateur(PaginatedAPIMixin, UserMixin, db.Model):
             'publications':[item.id for item in publications],
             'partisans':[item.id for item in partisans]}
         return data
+    
+    def to_dict_pour_jeton(self):
+        publications = self.liste_publications_dont_je_suis_partisan()
+        partisans = self.les_partisans
+
+        data = { 'utilisateur': {
+            'id':self.id,
+            'nom':self.nom,
+            'courriel':self.courriel,
+            'avatar':self.avatar,
+            'a_propos_de_moi':self.a_propos_de_moi,
+            'dernier_acces':self.dernier_acces,
+            'publications':[item.id for item in publications],
+            'partisans':[item.id for item in partisans]}}
+        return data
 
     def enregister_mot_de_passe(self, mot_de_passe):
         self.mot_de_passe_hash = generate_password_hash(mot_de_passe)
@@ -109,7 +124,12 @@ class Utilisateur(PaginatedAPIMixin, UserMixin, db.Model):
         if self.jeton and self.jeton_expiration > maintenant + timedelta(seconds=60):
             return self.jeton
         self.jeton = base64.b64encode(os.urandom(24)).decode('utf-8')
+
         self.jeton_expiration = maintenant + timedelta(seconds=expire_dans)
+        filtre = [';', ':', '!', '*', '/']
+        for c in filtre :
+            self.jeton = self.jeton.replace(c,'X')
+
         db.session.add(self)
         return self.jeton
 
