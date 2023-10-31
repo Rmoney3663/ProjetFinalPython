@@ -9,24 +9,22 @@ import NavigationBar from './NavigationBar';
 import Login from './Login';
 import MultilineTextInput from './MultilineTextInput';
 
-async function getJson(url, obj, message, setEnChargement, setFlash, setEtat){
+async function getText(url, obj, message, setEnChargement, setFlash){
     try
     {
         setEnChargement(true)
         setFlash('')
-        setEtat('')
         let reponse = await fetch(url, obj);
-        let reponseJson = await reponse.json();
+        let reponseText = await reponse.text();
         setEnChargement(false)
 
-        if (reponseJson.erreur === undefined)
+        if (reponseText !== "")
         {
-			setEtat(reponseJson)
-            setFlash(message)
-        }
-        else
-            setFlash(reponseJson.erreur)
-        return (reponseJson);        
+            setFlash(reponseText)
+        }else{
+			setFlash("Publication creer")
+		}
+        return (reponseText);        
     } catch(erreur){
         console.error(erreur);
     }
@@ -64,6 +62,24 @@ const Index = () => {
         setFlash('');
     };
 
+	 const creerPublication = (values) => {
+       
+            alert("creer publication");
+            const url = "http://127.0.0.1:5000/api/publications";
+            const obj = {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json'
+                },
+				body: JSON.stringify({
+					text:values["publication"],
+					userId:utilisateur.id
+				})
+            };
+            getText(url, obj, 'Publication creer.', setEnChargement, setFlash);
+        
+    };
 
     if (utilisateur !== null) {        
         return (
@@ -72,7 +88,7 @@ const Index = () => {
 				<Formik
 		            initialValues={{ publication: '' }}
 		            onSubmit={(values, actions) => {
-		                demarrerSession(values);
+		                creerPublication(values);
 		            }}
 		            validationSchema={validationSchema}
 		        >					

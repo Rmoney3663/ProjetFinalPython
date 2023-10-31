@@ -4,6 +4,7 @@ from flask import jsonify
 from flask import request 
 from app.api.auth import token_auth
 from flask_cors import cross_origin
+from app import app, db, socketio
 
 @bp.route('/publications2', methods=['GET'])
 def get_publications2():
@@ -25,8 +26,26 @@ def get_publications():
     return jsonify(data)
 
 @bp.route('/publications', methods=['POST'])
+@cross_origin()
 def creer_publication():
-    return "creer"
+    print("creer publications")
+    try:
+        data = request.get_json()
+    except:
+        print("Erreur pour Json")
+        return "Erreur pour Json", 400
+
+    text = data.get("text")
+    utilisateur_id = data.get("userId")  
+    print(text)
+    print(utilisateur_id)
+    publication = Publication(corps=text, utilisateur_id=utilisateur_id)
+    db.session.add(publication)
+    db.session.commit()
+    id= publication.id
+    socketio.emit('nouvelle_publication', {'id':id }, namespace='/chat')
+    return "", 204
+
 
 @bp.route('/publications/<int:id>', methods=['PUT'])
 def modifier_publication(id):
