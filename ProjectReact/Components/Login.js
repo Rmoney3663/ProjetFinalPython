@@ -37,7 +37,7 @@ const validationSchema = yup.object().shape({
     mdp: yup
         .string()
         .required('Veuillez entrer votre mot de passe.')
-        .label('Nom'),
+        .label('Mot de passe'),
 });
 
 const Login = () => {
@@ -122,6 +122,7 @@ const Login = () => {
                                     style={styles.inputText}
                                     placeholder="Utilisateur..."
                                     placeholderTextColor="#bbbbbb"
+									value={formikProps.values.nom}
                                     onChangeText={formikProps.handleChange('nom')}
                                 />
                             </View>
@@ -133,6 +134,7 @@ const Login = () => {
                                     style={styles.inputText}
                                     placeholder="Mot de passe..."
                                     placeholderTextColor="#bbbbbb"
+									value={formikProps.values.mdp}
                                     onChangeText={formikProps.handleChange('mdp')}
                                 />
                             </View>
