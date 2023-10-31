@@ -1,5 +1,5 @@
 from flask import render_template, flash, redirect, url_for, request
-from app import app
+from app import app, db, socketio
 from app.formulaires import LoginForm, FormulaireEnregistrement, FormulaireEditerProfil, FormulaireVide, FormulairePublication
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import Utilisateur, Publication
@@ -8,7 +8,6 @@ from PIL import Image, ImageDraw, ImageFont
 import random
 import base64
 from io import BytesIO
-from app import db
 from datetime import datetime
 
 

@@ -104,8 +104,7 @@ const Login = () => {
     };
 
     return (
-        <View style={styles.container}>
-			<NavigationBar />
+        <View style={styles.container}>			
             <Image source={logo} style={styles.logo} />
             <Image source={anonyme} style={styles.avatar} />
             <Text style={styles.flash}>Flash: {flash}</Text>
@@ -159,23 +158,6 @@ const Login = () => {
             </Formik>
         </View>
     );
-     
-	/*else {
-        return (
-           <View style={styles.container}>
-                <Image source={logo} style={styles.logo} />
-                <Image source={utilisateur.avatar} style={styles.avatar} />
-                <Text style={styles.flash}>Flash: {flash}</Text>
-                <Text style={styles.flash}>Utilisateur: {utilisateur.nom}</Text>
-                <Text style={styles.jeton}>Jeton: {jeton}</Text>
-                <TouchableOpacity style={styles.loginBtn} onPress={quitterSession}>
-                    <Text style={styles.loginText}>Quitter la session</Text>
-                </TouchableOpacity>
-            </View>
-			
-			
-        );
-    }*/
 };
 
 const styles = StyleSheet.create({

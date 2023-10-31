@@ -27,9 +27,7 @@ const NavigationBar = () => {
         <li>
           <Link to="/" style={linkStyles} onMouseEnter={(e) => e.target.style.color = linkHoverStyles.color} onMouseLeave={(e) => e.target.style.color = linkStyles.color}>Home</Link>
         </li>
-        <li>
-          <Link to="/Ajouter" style={linkStyles} onMouseEnter={(e) => e.target.style.color = linkHoverStyles.color} onMouseLeave={(e) => e.target.style.color = linkStyles.color}>Ajouter</Link>
-        </li>
+        
         {/* Add more navigation links here */}
       </ul>
     </nav>

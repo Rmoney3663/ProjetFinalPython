@@ -7,6 +7,7 @@ import anonyme from '../assets/anonyme.png';
 import { useNavigate, useLocation } from "react-router-dom";
 import NavigationBar from './NavigationBar';
 import Login from './Login';
+import MultilineTextInput from './MultilineTextInput';
 
 async function getJson(url, obj, message, setEnChargement, setFlash, setEtat){
     try
@@ -44,6 +45,7 @@ const Index = () => {
     const [flash, setFlash] = useState('');
     const [jeton, setJeton] = useState(location.state?.jeton || '');
     const [utilisateur, setUtilisateur] = useState(location.state?.utilisateur || null);
+	const [publication, setPublication] = useState(null);
     const [enChargement, setEnChargement] = useState(false);
 	console.log(location);
 
@@ -65,23 +67,59 @@ const Index = () => {
 
     if (utilisateur !== null) {        
         return (
-            <View style={styles.container}>
-                <Image source={logo} style={styles.logo} />
-                <Image source={utilisateur.avatar} style={styles.avatar} />
-                <Text style={styles.flash}>Flash: {flash}</Text>
-                <Text style={styles.flash}>Utilisateur: {utilisateur.nom}</Text>
-                <Text style={styles.jeton}>Jeton: {jeton}</Text>
-                <TouchableOpacity style={styles.loginBtn} onPress={quitterSession}>
-                    <Text style={styles.loginText}>Quitter la session</Text>
-                </TouchableOpacity>
-            </View>
+            <View style={styles.container}>			
+ 				
+				<Formik
+		            initialValues={{ publication: '' }}
+		            onSubmit={(values, actions) => {
+		                demarrerSession(values);
+		            }}
+		            validationSchema={validationSchema}
+		        >					
+			        {formikProps => (
+			            <React.Fragment>
+							<NavigationBar />
+							<TouchableOpacity style={styles.quitterBtn} onPress={quitterSession}>
+								<Text style={styles.loginText}>Quitter la session</Text>
+							</TouchableOpacity>
+							<Text style={styles.title}>Bonjour, {utilisateur.nom}!</Text>
+							<Image source={utilisateur.avatar} style={styles.avatar} />
+							<Text style={styles.flash}>Flash: {flash}</Text>
+							<Text style={styles.jeton}>Jeton: {jeton}</Text>
+							<Text style={styles.text}>Dite quelque chose...</Text>
+							
+							<MultilineTextInput
+								style={styles.textarea}
+								placeholder="Publication..."
+								placeholderTextColor="#bbbbbb"
+								value={formikProps.values.publication}
+								onChangeText={formikProps.handleChange('publication')}
+							/>
+							<Text style={styles.erreur}>{formikProps.errors.publication}</Text>
+							
+							<TouchableOpacity
+								style={styles.loginBtn}
+								onPress={() => {
+								if (formikProps.values.publication.trim() !== '') {
+								  formikProps.handleSubmit();
+									
+								}
+								}}
+							>
+							<Text style={styles.loginText}>Soumettre</Text>
+							</TouchableOpacity>
+
+			            </React.Fragment>
+				        )}
+		        </Formik>
+		    </View>
         );
     }
 };
 
 const styles = StyleSheet.create({
     container:{
-        justifyContent:'center',
+        justifyContent:'top',
         alignItems:'center',
         backgroundColor:'#6e4256',
         margin:10,
@@ -94,8 +132,8 @@ const styles = StyleSheet.create({
         margin:50
     }, 
     avatar:{
-        width:256,
-        height:256,
+        width:400,
+        height:400,
         margin:50
     },
     inputView:{
@@ -105,14 +143,42 @@ const styles = StyleSheet.create({
         height:80,
         marginBottom:20,
         justifyContent:'center',
-        padding:20
+        padding:20,
+ 		marginTop:20,
+    },
+	textarea:{
+        width:'80%',
+        backgroundColor:'#00a0d3',
+        borderRadius:25,
+        height:80,
+        marginBottom:20,
+        justifyContent:'center',
+        padding:20,
+ 		marginTop:20,
+	  	height:50,
+        color:'white',
+        fontSize:50
     },
     inputText:{
         height:50,
         color:'white',
         fontSize:50
     },
-    loginBtn:{
+    quitterBtn:{
+        width:'80%',
+        backgroundColor:'#00a0d3',
+        borderRadius:25,
+        height:80,
+        alignItems:'center',
+        justifyContent:'center',
+        marginTop:0,
+        marginBottom:150
+    },
+    loginText:{
+        fontSize:50,
+        color:'white'
+    },
+ 	loginBtn:{
         width:'80%',
         backgroundColor:'#00a0d3',
         borderRadius:25,
@@ -122,20 +188,24 @@ const styles = StyleSheet.create({
         marginTop:40,
         marginBottom:10
     },
-    loginText:{
-        fontSize:50,
-        color:'white'
-    },
     erreur:{
         fontSize:50,
         color:'red'
     },
     flash:{
+        fontSize:30,
+        color:'black'
+    },
+	text:{
         fontSize:50,
         color:'black'
     },
     jeton:{
         fontSize:30,
+        color:'black'
+    },
+	title:{
+        fontSize:80,
         color:'black'
     },
 
