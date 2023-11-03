@@ -77,7 +77,7 @@ const Index = () => {
 					userId:utilisateur.id
 				})
             };
-            getText(url, obj, 'Publication creer.', setEnChargement, setFlash);
+            getText(url, obj, 'Votre publication est en ligne!', setEnChargement, setFlash);
         
     };
 

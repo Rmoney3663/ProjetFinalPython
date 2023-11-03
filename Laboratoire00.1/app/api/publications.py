@@ -40,6 +40,7 @@ def creer_publication():
     print(text)
     print(utilisateur_id)
     publication = Publication(corps=text, utilisateur_id=utilisateur_id)
+    print(publication)
     db.session.add(publication)
     db.session.commit()
     id= publication.id
