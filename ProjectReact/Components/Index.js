@@ -8,6 +8,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import NavigationBar from './NavigationBar';
 import Login from './Login';
 import MultilineTextInput from './MultilineTextInput';
+import { useAppContext  } from './AppContext';
+
 
 async function getText(url, obj, message, setEnChargement, setFlash){
     try
@@ -41,14 +43,26 @@ const Index = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
     const [flash, setFlash] = useState('');
-    const [jeton, setJeton] = useState(location.state?.jeton || '');
-    const [utilisateur, setUtilisateur] = useState(location.state?.utilisateur || null);
+ 	const {jeton, setJeton, utilisateur, setUtilisateur} = useAppContext();
+    //const [jeton, setJeton] = useState(location.state?.jeton || '');
+    //const [utilisateur, setUtilisateur] = useState(location.state?.utilisateur || null);
 	const [publication, setPublication] = useState(null);
     const [enChargement, setEnChargement] = useState(false);
-	console.log(location);
+	//console.log(location);
 
 
     useEffect(() => {
+		const savedJeton = localStorage.getItem('jeton');
+		const savedUtilisateur = JSON.parse(localStorage.getItem('utilisateur'));
+
+		if (savedJeton && jeton == '') {
+		  setJeton(savedJeton);
+		}
+
+		if (savedUtilisateur && utilisateur == null)  {
+		  setUtilisateur(savedUtilisateur);
+		}
+
         if (jeton === '' || utilisateur === null) {
             navigate("/Login");
         }
@@ -94,7 +108,7 @@ const Index = () => {
 		        >					
 			        {formikProps => (
 			            <React.Fragment>
-							<NavigationBar />
+							<NavigationBar userId={utilisateur.id} />
 							<TouchableOpacity style={styles.quitterBtn} onPress={quitterSession}>
 								<Text style={styles.loginText}>Quitter la session</Text>
 							</TouchableOpacity>
