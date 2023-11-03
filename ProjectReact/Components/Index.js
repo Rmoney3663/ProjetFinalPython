@@ -74,6 +74,10 @@ const Index = () => {
         setJeton('');
         setUtilisateur(null);
         setFlash('');
+		localStorage.setItem('jeton', '');
+		localStorage.setItem('utilisateur', JSON.stringify(null));
+
+		
     };
 
 	 const creerPublication = (values) => {

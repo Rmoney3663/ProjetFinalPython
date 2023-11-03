@@ -8,59 +8,123 @@ import { useNavigate, useParams } from "react-router-dom";
 import NavigationBar from './NavigationBar';
 import { useAppContext  } from './AppContext';
 
+async function getJson(url, obj, message, setEnChargement, setFlash, setEtat){
+    try
+    {
+        setEnChargement(true)
+        setFlash('')
+        let reponse = await fetch(url, obj);
+        let reponseJson = await reponse.json();
+        setEnChargement(false)
 
+        if (reponseJson.erreur === undefined)
+        {
+			setEtat(reponseJson)
+            setFlash(message)
+			console.log(reponseJson)
+        }
+        else
+            setFlash(reponseJson.erreur)
+        return (reponseJson);        
+    } catch(erreur){
+        console.error(erreur);
+    }
+}
 
 const Utilisateur = () => {
-	const { userId } = useParams();
+	const { id } = useParams();
 	const navigate = useNavigate();
 	const [flash, setFlash] = useState('');
 	const {jeton, setJeton, utilisateur, setUtilisateur} = useAppContext();
 	const [publication, setPublication] = useState(null);
 	const [enChargement, setEnChargement] = useState(false);
-
+	const [user, setUser] = useState(null);
  	
 
     useEffect(() => {
 		const savedJeton = localStorage.getItem('jeton');
 		const savedUtilisateur = JSON.parse(localStorage.getItem('utilisateur'));
-		console.log('savedJeton ' + savedJeton);
-  		console.log('savedUtilisateur ' + savedUtilisateur);
-		console.log('Og Jeton ' + jeton);
-	  	console.log('Og utilisateur ' + utilisateur);
 		if (savedJeton && jeton == '') {			
 		  	setJeton(savedJeton);
-			console.log('Jeton ' + jeton);
 		}
 
 		if (savedUtilisateur && utilisateur == null)  {
-		  	setUtilisateur(savedUtilisateur);
-			console.log('utilisateur ' + utilisateur);
+		  	setUtilisateur(savedUtilisateur);			
 		}
 		  	
-        if (savedJeton === '' || savedUtilisateur === null) {
+        if (savedJeton === '' || savedUtilisateur === null || id === null) {
 			
-            navigate("/Login");
+            navigate("/");
         }
+		console.log(savedUtilisateur.id)
+		console.log(id)
+		if (user === null){
+			chargerUtilisateur();
+		}
     });
 
-	if (utilisateur !== null) {
-  		return (
-		
-	 		<View style={styles.container}>		
-				<NavigationBar userId={utilisateur.id} />           
-		        <Text style={styles.flash}>userId: {userId}</Text>
-		        <Text style={styles.flash}>jeton: {jeton}</Text>
-				<Text style={styles.flash}>utilisateur: {utilisateur.nom}</Text>
-		    </View>
-		
-       
-    	);
+	const chargerUtilisateur = () => {
+        const url = "http://127.0.0.1:5000/api/utilisateurs/" + id;
+        const obj = {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+        };
+        getJson(url, obj, 'Utilisateur chargé.', setEnChargement, setFlash, setUser);
+        
+    };
+
+ 	const modifier = () => {        
+        navigate("/");
+    };
+
+	if (utilisateur !== null && id !== null) {
+		if (id == utilisateur.id ){
+			return (		
+		 		<View style={styles.container}>	
+					<NavigationBar userId={utilisateur.id} />           
+					<Text style={styles.flash}>Flash: {flash}</Text>
+	 				<Text style={styles.flash}>Je suis {utilisateur.nom}</Text>
+					<Text style={styles.flash}>Dernier acces: {utilisateur.dernier_acces}</Text>
+					<Text style={styles.flash}>je suis partisan de {utilisateur.les_partisans.length} utilisateur(s), 
+					Je suis suivi par {utilisateur.partisans.length} utilisateur(s)</Text>
+					<TouchableOpacity style={styles.loginBtn} onPress={modifier}>
+		                <Text style={styles.loginText}>Modifier votre profil</Text>
+		            </TouchableOpacity>
+					<Text style={styles.title}>Utilisateur: {utilisateur.nom}</Text>
+					<Image source={utilisateur.avatar} style={styles.avatar} />
+				</View>	
+			);
+		}
+		else if (user !== null){
+			return (		
+		 		<View style={styles.container}>	
+					<NavigationBar userId={utilisateur.id} />           
+					<Text style={styles.flash}>Flash: {flash}</Text>
+	 				<Text style={styles.flash}>Je suis {user.nom}</Text>
+					<Text style={styles.flash}>Dernier acces: {user.dernier_acces}</Text>
+					<Text style={styles.flash}>je suis partisan de {user.les_partisans.length} utilisateur(s), 
+					Je suis suivi par {user.partisans.length} utilisateur(s)</Text>
+					
+					<TouchableOpacity style={styles.loginBtn} onPress={/* use same thing like under for 2 functiosn to do what you need to do */}>
+	                	<Text style={styles.loginText}>
+							{(user.partisans.indexOf(utilisateur.id) != -1) ? "Ne plus suivre" : "Suivre"}
+						</Text>
+	            	</TouchableOpacity>
+
+					<Text style={styles.title}>Utilisateur: {user.nom}</Text>
+					<Image source={user.avatar} style={styles.avatar} />
+				</View>	
+			);			
+		}  		
 	}
 };
 
 const styles = StyleSheet.create({
     container:{
-        justifyContent:'center',
+        justifyContent:'top',
         alignItems:'center',
         backgroundColor:'#6e4256',
         margin:10,
@@ -73,8 +137,8 @@ const styles = StyleSheet.create({
         margin:50
     }, 
     avatar:{
-        width:256,
-        height:256,
+        width:400,
+        height:400,
         margin:50
     },
     inputView:{
@@ -84,14 +148,42 @@ const styles = StyleSheet.create({
         height:80,
         marginBottom:20,
         justifyContent:'center',
-        padding:20
+        padding:20,
+ 		marginTop:20,
+    },
+	textarea:{
+        width:'80%',
+        backgroundColor:'#00a0d3',
+        borderRadius:25,
+        height:80,
+        marginBottom:20,
+        justifyContent:'center',
+        padding:20,
+ 		marginTop:20,
+	  	height:50,
+        color:'white',
+        fontSize:50
     },
     inputText:{
         height:50,
         color:'white',
         fontSize:50
     },
-    loginBtn:{
+    quitterBtn:{
+        width:'80%',
+        backgroundColor:'#00a0d3',
+        borderRadius:25,
+        height:80,
+        alignItems:'center',
+        justifyContent:'center',
+        marginTop:0,
+        marginBottom:150
+    },
+    loginText:{
+        fontSize:50,
+        color:'white'
+    },
+ 	loginBtn:{
         width:'80%',
         backgroundColor:'#00a0d3',
         borderRadius:25,
@@ -101,20 +193,24 @@ const styles = StyleSheet.create({
         marginTop:40,
         marginBottom:10
     },
-    loginText:{
-        fontSize:50,
-        color:'white'
-    },
     erreur:{
         fontSize:50,
         color:'red'
     },
     flash:{
+        fontSize:35,
+        color:'black'
+    },
+	text:{
         fontSize:50,
         color:'black'
     },
     jeton:{
         fontSize:30,
+        color:'black'
+    },
+	title:{
+        fontSize:80,
         color:'black'
     },
 
