@@ -48,10 +48,21 @@ const Index = () => {
     //const [utilisateur, setUtilisateur] = useState(location.state?.utilisateur || null);
 	const [publication, setPublication] = useState(null);
     const [enChargement, setEnChargement] = useState(false);
-	console.log(location);
+	//console.log(location);
 
 
     useEffect(() => {
+		const savedJeton = localStorage.getItem('jeton');
+		const savedUtilisateur = JSON.parse(localStorage.getItem('utilisateur'));
+
+		if (savedJeton && jeton == '') {
+		  setJeton(savedJeton);
+		}
+
+		if (savedUtilisateur && utilisateur == null)  {
+		  setUtilisateur(savedUtilisateur);
+		}
+
         if (jeton === '' || utilisateur === null) {
             navigate("/Login");
         }

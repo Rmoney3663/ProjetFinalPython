@@ -14,22 +14,40 @@ const Utilisateur = () => {
 	const { userId } = useParams();
 	const navigate = useNavigate();
 	const [flash, setFlash] = useState('');
-	const { jeton, utilisateur } = useAppContext();
+	const {jeton, setJeton, utilisateur, setUtilisateur} = useAppContext();
 	const [publication, setPublication] = useState(null);
 	const [enChargement, setEnChargement] = useState(false);
 
- 	console.log('Jeton ' + jeton);
-  	console.log('utilisateur ' + utilisateur);
+ 	
 
     useEffect(() => {
-        if (jeton === '' || utilisateur === null) {
+		const savedJeton = localStorage.getItem('jeton');
+		const savedUtilisateur = JSON.parse(localStorage.getItem('utilisateur'));
+		console.log('savedJeton ' + savedJeton);
+  		console.log('savedUtilisateur ' + savedUtilisateur);
+		console.log('Og Jeton ' + jeton);
+	  	console.log('Og utilisateur ' + utilisateur);
+		if (savedJeton && jeton == '') {			
+		  	setJeton(savedJeton);
+			console.log('Jeton ' + jeton);
+		}
+
+		if (savedUtilisateur && utilisateur == null)  {
+		  	setUtilisateur(savedUtilisateur);
+			console.log('utilisateur ' + utilisateur);
+		}
+		  	
+        if (savedJeton === '' || savedUtilisateur === null) {
+			
             navigate("/Login");
         }
     });
+
 	if (utilisateur !== null) {
   		return (
 		
-	 		<View style={styles.container}>		           
+	 		<View style={styles.container}>		
+				<NavigationBar userId={utilisateur.id} />           
 		        <Text style={styles.flash}>userId: {userId}</Text>
 		        <Text style={styles.flash}>jeton: {jeton}</Text>
 				<Text style={styles.flash}>utilisateur: {utilisateur.nom}</Text>

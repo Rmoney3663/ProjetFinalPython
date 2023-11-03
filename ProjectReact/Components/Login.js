@@ -56,6 +56,13 @@ const Login = () => {
             chargerUtilisateur();
         }
 		else if(utilisateur !== null){
+			// When setting the jeton and utilisateur
+			localStorage.setItem('jeton', jeton);
+			localStorage.setItem('utilisateur', JSON.stringify(utilisateur));
+
+			// When the app starts (e.g., in your main App component)
+			const savedJeton = localStorage.getItem('jeton');
+			const savedUtilisateur = JSON.parse(localStorage.getItem('utilisateur'));
 
 			navigate('/', { state:{ jeton:jeton, utilisateur:utilisateur }});
 		}
