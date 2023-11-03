@@ -1,13 +1,13 @@
 from app.api import bp
 from app.models import Utilisateur
-from flask import jsonify, request
+from flask import jsonify, render_template, flash, redirect, url_for, request
 from app.api.auth import token_auth
 from flask_cors import cross_origin
 from PIL import Image, ImageDraw, ImageFont
 import random
 import base64
 from io import BytesIO
-from app import db
+from app import app, db, socketio
 
 @bp.route('/utilisateurs2', methods=['GET'])
 def get_utilisateurs2():
@@ -16,7 +16,7 @@ def get_utilisateurs2():
 @bp.route('/utilisateurs/<int:id>', methods=['GET'])
 @cross_origin()
 @token_auth.login_required
-def get_utilisateur(id):
+def get_utilisateurId(id):
     return jsonify(Utilisateur.query.get_or_404(id).to_dict())
 
 @bp.route('/utilisateurs', methods=['GET'])
@@ -28,6 +28,24 @@ def get_utilisateurss():
     data = Utilisateur.to_collection_dict(Utilisateur.query, page, par_page, 'api.get_publications')
 
     return jsonify(data)
+
+@bp.route('/utilisateur/<string:nom>', methods=['GET'])
+@cross_origin()
+def get_utilisateur(nom):
+    utilisateur = Utilisateur.query.filter_by(nom=nom).first_or_404()
+    page = request.args.get('page', 1, type=int)
+
+    publications = utilisateur.publications.paginate(
+        page=page, per_page = app.config['PUBLICATIONS_PAR_PAGE'], error_out = False)  
+
+    suivant = url_for('utilisateur', nom = utilisateur.nom, page = publications.next_num) \
+        if publications.has_next else None
+    precedent = url_for('utilisateur', nom = utilisateur.nom, page = publications.prev_num) \
+        if publications.has_prev else None
+  
+
+    return utilisateur.courriel
+
 
 @bp.route('/utilisateurs', methods=['POST'])
 @cross_origin()
