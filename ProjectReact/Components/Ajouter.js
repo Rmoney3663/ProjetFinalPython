@@ -152,8 +152,8 @@ const Ajouter = () => {
 						<Text style={styles.erreur}>{passwordMatchError}</Text>
 
 						 <TouchableOpacity
-                            style={[styles.loginBtn,
-							!formikProps.isValid || passwordMatchError ? styles.disabled : null]}
+                            style={[styles.loginBtn,!formikProps.isValid 
+									|| passwordMatchError ? styles.disabled : null]}
                             onPress={formikProps.handleSubmit}
                             disabled={!formikProps.isValid || passwordMatchError}
                         >
