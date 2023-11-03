@@ -6,6 +6,7 @@ import logo from '../assets/logoPG.png';
 import anonyme from '../assets/anonyme.png';
 import { useNavigate } from "react-router-dom";
 import NavigationBar from './NavigationBar';
+import { useAppContext  } from './AppContext';
 
 async function getJson(url, obj, message, setEnChargement, setFlash, setEtat){
     try
@@ -44,8 +45,9 @@ const validationSchema = yup.object().shape({
 const Login = () => {
 	const navigate = useNavigate();
     const [flash, setFlash] = useState('');
-    const [jeton, setJeton] = useState('');
-    const [utilisateur, setUtilisateur] = useState(null);
+    //const [jeton, setJeton] = useState('');
+    //const [utilisateur, setUtilisateur] = useState(null);
+	const {jeton, setJeton, utilisateur, setUtilisateur} = useAppContext();
     const [enChargement, setEnChargement] = useState(false);
 
     useEffect(() => {
@@ -54,6 +56,7 @@ const Login = () => {
             chargerUtilisateur();
         }
 		else if(utilisateur !== null){
+
 			navigate('/', { state:{ jeton:jeton, utilisateur:utilisateur }});
 		}
 		

@@ -8,6 +8,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import NavigationBar from './NavigationBar';
 import Login from './Login';
 import MultilineTextInput from './MultilineTextInput';
+import { useAppContext  } from './AppContext';
+
 
 async function getText(url, obj, message, setEnChargement, setFlash){
     try
@@ -41,8 +43,9 @@ const Index = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
     const [flash, setFlash] = useState('');
-    const [jeton, setJeton] = useState(location.state?.jeton || '');
-    const [utilisateur, setUtilisateur] = useState(location.state?.utilisateur || null);
+ 	const {jeton, setJeton, utilisateur, setUtilisateur} = useAppContext();
+    //const [jeton, setJeton] = useState(location.state?.jeton || '');
+    //const [utilisateur, setUtilisateur] = useState(location.state?.utilisateur || null);
 	const [publication, setPublication] = useState(null);
     const [enChargement, setEnChargement] = useState(false);
 	console.log(location);
