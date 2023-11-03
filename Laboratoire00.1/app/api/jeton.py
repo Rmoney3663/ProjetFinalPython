@@ -15,10 +15,14 @@ def get_jeton2():
 @basic_auth.login_required
 def get_jeton():
     print("get_jeton")
-    jeton = basic_auth.current_user().get_jeton()
-
-    db.session.commit()
-    return jsonify(jeton)
+    utilisateur = basic_auth.current_user()  
+    # jeton = basic_auth.current_user().get_jeton()
+    if utilisateur:
+        jeton = utilisateur.get_jeton()
+        db.session.commit()
+        return jsonify(jeton)
+    else:
+        return "Utilisateur non trouvé", 404
 
 @bp.route('/jeton', methods=['DELETE'])
 @token_auth.login_required
