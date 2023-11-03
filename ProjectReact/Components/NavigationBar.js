@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const NavigationBar = () => {
+const NavigationBar = ({ userId }) => {
   const navStyles = {
     display: 'flex',
     listStyle: 'none',
@@ -27,7 +27,9 @@ const NavigationBar = () => {
         <li>
           <Link to="/" style={linkStyles} onMouseEnter={(e) => e.target.style.color = linkHoverStyles.color} onMouseLeave={(e) => e.target.style.color = linkStyles.color}>Home</Link>
         </li>
-        
+        <li>
+          <Link to={`/Utilisateur/${userId}`} style={linkStyles} onMouseEnter={(e) => e.target.style.color = linkHoverStyles.color} onMouseLeave={(e) => e.target.style.color = linkStyles.color}>Profile</Link>
+        </li>
         {/* Add more navigation links here */}
       </ul>
     </nav>

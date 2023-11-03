@@ -94,7 +94,7 @@ const Index = () => {
 		        >					
 			        {formikProps => (
 			            <React.Fragment>
-							<NavigationBar />
+							<NavigationBar userId={utilisateur.id} />
 							<TouchableOpacity style={styles.quitterBtn} onPress={quitterSession}>
 								<Text style={styles.loginText}>Quitter la session</Text>
 							</TouchableOpacity>
