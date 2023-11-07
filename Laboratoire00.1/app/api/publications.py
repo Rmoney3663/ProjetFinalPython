@@ -27,6 +27,7 @@ def get_publications():
 
 @bp.route('/publications', methods=['POST'])
 @cross_origin()
+@token_auth.login_required
 def creer_publication():
     print("creer publications")
     try:

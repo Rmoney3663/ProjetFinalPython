@@ -83,12 +83,14 @@ const Index = () => {
 	 const creerPublication = (values) => {
        
             alert("creer publication");
+			alert(jeton);
             const url = "http://127.0.0.1:5000/api/publications";
             const obj = {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+					'Authorization': 'Bearer ' + jeton,
                 },
 				body: JSON.stringify({
 					text:values["publication"],
