@@ -15,7 +15,7 @@ def get_utilisateurs2():
 
 @bp.route('/utilisateurs/<int:id>', methods=['GET'])
 @cross_origin()
-#@token_auth.login_required
+@token_auth.login_required
 def get_utilisateur(id):
     return jsonify(Utilisateur.query.get_or_404(id).to_dict())
 
@@ -82,6 +82,26 @@ def creer_utilisateur():
 	db.session.add(utilisateur)
 	db.session.commit()
 
+	return "",204
+
+@bp.route('/suivre/<int:id>', methods=['GET'])
+@cross_origin()
+@token_auth.login_required
+def suivre(id):
+	current_user = token_auth.current_user()
+	utilisateur = Utilisateur.query.filter_by(id=id).first()
+	current_user.devenir_partisan(utilisateur)
+	db.session.commit()	
+	return "",204
+
+@bp.route('/ne_plus_suivre/<int:id>', methods=['GET'])
+@cross_origin()
+@token_auth.login_required
+def nosuivre(id):
+	current_user = token_auth.current_user()
+	utilisateur = Utilisateur.query.filter_by(id=id).first()
+	current_user.ne_plus_etre_partisan(utilisateur)
+	db.session.commit()
 	return "",204
 
 @bp.route('/utilisateurs/<int:id>', methods=['PUT'])

@@ -85,7 +85,8 @@ class Utilisateur(PaginatedAPIMixin, UserMixin, db.Model):
 
     def to_dict(self):
         publications = self.liste_publications_dont_je_suis_partisan()
-        partisans = self.les_partisans
+        partisans = self.partisans
+        les_partisans = self.les_partisans
 
         data = {
             'id':self.id,
@@ -95,7 +96,8 @@ class Utilisateur(PaginatedAPIMixin, UserMixin, db.Model):
             'a_propos_de_moi':self.a_propos_de_moi,
             'dernier_acces':self.dernier_acces,
             'publications':[item.id for item in publications],
-            'partisans':[item.id for item in partisans]}
+            'partisans':[item.id for item in partisans],
+			'les_partisans':[item.id for item in les_partisans]}
         return data
     
     def to_dict_pour_jeton(self):
