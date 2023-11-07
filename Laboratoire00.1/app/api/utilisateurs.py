@@ -17,7 +17,11 @@ def get_utilisateurs2():
 @cross_origin()
 @token_auth.login_required
 def get_utilisateur(id):
-    return jsonify(Utilisateur.query.get_or_404(id).to_dict())
+   # return jsonify(Utilisateur.query.get_or_404(id).to_dict())
+	utilisateur = Utilisateur.query.get(id)
+	if utilisateur is None:
+		return "", 404
+	return jsonify(utilisateur.to_dict())
 
 @bp.route('/utilisateurs', methods=['GET'])
 @cross_origin()

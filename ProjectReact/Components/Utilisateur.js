@@ -8,28 +8,34 @@ import { useNavigate, useParams } from "react-router-dom";
 import NavigationBar from './NavigationBar';
 import { useAppContext  } from './AppContext';
 
-async function getJson(url, obj, message, setEnChargement, setFlash, setEtat){
-    try
-    {
-        setEnChargement(true)
-        setFlash('')
-        let reponse = await fetch(url, obj);
-        let reponseJson = await reponse.json();
-        setEnChargement(false)
+async function getJson(url, obj, message, setEnChargement, setFlash, setEtat, navigate) {
+	let reponseJson; 
+	try {
+		setEnChargement(true);
+		setFlash('');
+		let reponse = await fetch(url, obj);
+		if (reponse.status === 404) {
+		  navigate("./NotFound"); 
+		} else if (!reponse.ok) {
+		  throw new Error('Network response was not ok');
+		} else {
+		  let reponseJson = await reponse.json();
+		  setEnChargement(false);
 
-        if (reponseJson.erreur === undefined)
-        {
-			setEtat(reponseJson)
-            setFlash(message)
-			console.log(reponseJson)
-        }
-        else
-            setFlash(reponseJson.erreur)
-        return (reponseJson);        
-    } catch(erreur){
-        console.error(erreur);
-    }
+		  if (reponseJson.erreur === undefined) {
+			setEtat(reponseJson);
+			setFlash(message);
+			console.log(reponseJson);
+		  } else {
+			setFlash(reponseJson.erreur);
+		  }
+		}
+		return reponseJson;
+	} catch (erreur) {
+	console.error(erreur);
+	}
 }
+
 
 async function getUser(url, obj, message, setEnChargement, setFlash, chargerUtilisateurLog, chargerUtilisateur){
 	try
@@ -98,7 +104,7 @@ const Utilisateur = () => {
  				'Authorization': 'Bearer ' + jeton,
             },
         };
-        getJson(url, obj, 'Utilisateur chargé.', setEnChargement, setFlash, setUser);
+        getJson(url, obj, 'Utilisateur chargé.', setEnChargement, setFlash, setUser, navigate);
         
     };
 
