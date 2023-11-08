@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, Image, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import logo from '../assets/logoPG.png';
-import anonyme from '../assets/anonyme.png';
 import { useNavigate, useLocation } from "react-router-dom";
 import NavigationBar from './NavigationBar';
 import Login from './Login';
@@ -11,7 +9,8 @@ import MultilineTextInput from './MultilineTextInput';
 import { useAppContext  } from './AppContext';
 
 
-async function getText(url, obj, message, setEnChargement, setFlash){
+async function getText(url, obj, message, setEnChargement, setFlash, chargerUtilisateur){
+	let reponse; 
     try
     {
         setEnChargement(true)
@@ -24,7 +23,8 @@ async function getText(url, obj, message, setEnChargement, setFlash){
         {
             setFlash(reponseText)
         }else{
-			setFlash("Publication creer")
+			setFlash("Utilisateur modifier")
+			chargerUtilisateur()
 		}
         return (reponseText);        
     } catch(erreur){
@@ -32,28 +32,56 @@ async function getText(url, obj, message, setEnChargement, setFlash){
     }
 }
 
+async function getJson(url, obj, message, setEnChargement, setFlash, setEtat) {
+	let reponseJson; 
+	try {
+		setEnChargement(true);
+		setFlash('');
+		const reponse = await fetch(url, obj); 
+		reponseJson = await reponse.json(); 
+		setEnChargement(false);
+
+		if (reponseJson.erreur === undefined) {
+			setEtat(reponseJson);
+			localStorage.setItem('utilisateur', JSON.stringify(reponseJson));
+			setFlash(message);
+			console.log("utilisateur");
+			console.log(reponseJson);
+		} else {
+			setFlash(reponseJson.erreur);
+		}
+
+		return reponseJson;
+	} catch (erreur) {
+		console.error(erreur);
+	}
+}
+
+
 const validationSchema = yup.object().shape({
-    publication: yup
+    nom: yup
         .string()
-        .required('Veuillez remplire la publication.')
-        .label('publication'),    
+        .required('Veuillez remplire le nom.')
+        .label('nom'),    
+	propos: yup
+        .string()
+        .required('Veuillez remplire la section A propos de moi.')
+        .label('propos'),    
 });
 
-const Index = () => {
+const Modifier = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
     const [flash, setFlash] = useState('');
  	const {jeton, setJeton, utilisateur, setUtilisateur} = useAppContext();
 	const [publication, setPublication] = useState(null);
     const [enChargement, setEnChargement] = useState(false);
-	//console.log(location);
 
 
     useEffect(() => {
 		const savedJeton = localStorage.getItem('jeton');
 		const savedUtilisateur = JSON.parse(localStorage.getItem('utilisateur'));
-		console.log("index ");
-		console.log(savedUtilisateur);
+
 		if (savedJeton && jeton == '') {
 		  setJeton(savedJeton);
 		}
@@ -63,40 +91,44 @@ const Index = () => {
 		}
 
         if (jeton === '' || utilisateur === null) {
-            navigate("/Login");
+            navigate("/");
         }
-    });
+    });   
+  
 
-    
-    const quitterSession = () => {
-        alert('quitter session');
-        setJeton('');
-        setUtilisateur(null);
-        setFlash('');
-		localStorage.setItem('jeton', '');
-		localStorage.setItem('utilisateur', JSON.stringify(null));
-
-		
-    };
-
-	 const creerPublication = (values) => {
+	 const Modifier = (values) => {
        
-            alert("creer publication");
+            alert("Modifier Profile");
 			alert(jeton);
-            const url = "http://127.0.0.1:5000/api/publications";
+            const url = "http://127.0.0.1:5000/api/utilisateurs/" + utilisateur.id;
             const obj = {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
 					'Authorization': 'Bearer ' + jeton,
                 },
 				body: JSON.stringify({
-					text:values["publication"],
-					userId:utilisateur.id
+					nom:values["nom"],
+					propos:values["propos"],
 				})
             };
-            getText(url, obj, 'Votre publication est en ligne!', setEnChargement, setFlash);
+            getText(url, obj, 'Profil Modifier', setEnChargement, setFlash, chargerUtilisateur);
+        
+    };
+
+	const chargerUtilisateur = () => {
+		console.log(jeton);
+        const url = "http://127.0.0.1:5000/api/utilisateurs/" + utilisateur.id;
+        const obj = {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+ 				'Authorization': 'Bearer ' + jeton,
+            },
+        };
+        getJson(url, obj, 'Utilisateur chargé.', setEnChargement, setFlash, setUtilisateur);
         
     };
 
@@ -105,39 +137,47 @@ const Index = () => {
             <View style={styles.container}>			
  				
 				<Formik
-		            initialValues={{ publication: '' }}
+		            initialValues={{ nom: utilisateur.nom, propos: utilisateur.a_propos_de_moi }}
 		            onSubmit={(values, actions) => {
-		                creerPublication(values);
+		                Modifier(values);
 		            }}
 		            validationSchema={validationSchema}
 		        >					
 			        {formikProps => (
 			            <React.Fragment>
-							<NavigationBar userId={utilisateur.id} />
-							<TouchableOpacity style={styles.quitterBtn} onPress={quitterSession}>
-								<Text style={styles.loginText}>Quitter la session</Text>
-							</TouchableOpacity>
-							<Text style={styles.title}>Bonjour, {utilisateur.nom}!</Text>
-							<Image source={utilisateur.avatar} style={styles.avatar} />
+							<NavigationBar userId={utilisateur.id} />							
+							<Text style={styles.title}>Editer Profil</Text>
 							<Text style={styles.flash}>Flash: {flash}</Text>
 							<Text style={styles.jeton}>Jeton: {jeton}</Text>
-							<Text style={styles.text}>Dite quelque chose...</Text>
+
+							<Text style={styles.text}>Nom</Text>
+							<View style={styles.inputView}>
+                            <TextInput
+                                style={styles.inputText}
+                                placeholder="Nom..."
+                                placeholderTextColor="#bbbbbb"
+								value={formikProps.values.nom}
+                                onChangeText={formikProps.handleChange('nom')}
+		                        />
+		                    </View>
+                        	<Text style={styles.erreur}>{formikProps.errors.nom}</Text>
 							
+							<Text style={styles.text}>A propos de moi</Text>
 							<MultilineTextInput
 								style={styles.textarea}
-								placeholder="Publication..."
+								placeholder="A propos de moi..."
 								placeholderTextColor="#bbbbbb"
-								value={formikProps.values.publication}
-								onChangeText={formikProps.handleChange('publication')}
+								value={formikProps.values.propos}
+								onChangeText={formikProps.handleChange('propos')}
 							/>
-							<Text style={styles.erreur}>{formikProps.errors.publication}</Text>
+							<Text style={styles.erreur}>{formikProps.errors.propos}</Text>
 							
 							<TouchableOpacity
 								style={styles.loginBtn}
 								onPress={() => {
-								if (formikProps.values.publication.trim() !== '') {
-								  formikProps.handleSubmit();
-							}}}>
+								if (formikProps.values.propos.trim() !== '' && formikProps.values.nom.trim() !== '') {
+								  formikProps.handleSubmit();									
+								}}}>
 
 							<Text style={styles.loginText}>Soumettre</Text>
 							</TouchableOpacity>
@@ -244,4 +284,4 @@ const styles = StyleSheet.create({
 
 
 });
-export default Index;
+export default Modifier;
