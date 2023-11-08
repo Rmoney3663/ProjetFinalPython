@@ -96,6 +96,7 @@ def suivre(id):
 	utilisateur = Utilisateur.query.filter_by(id=id).first()
 	current_user.devenir_partisan(utilisateur)
 	db.session.commit()	
+	socketio.emit('actualiser', {'bidon': "vide" }, namespace='/chat')
 	return "",204
 
 @bp.route('/ne_plus_suivre/<int:id>', methods=['GET'])
@@ -106,6 +107,7 @@ def nosuivre(id):
 	utilisateur = Utilisateur.query.filter_by(id=id).first()
 	current_user.ne_plus_etre_partisan(utilisateur)
 	db.session.commit()
+	socketio.emit('actualiser', {'bidon': "vide" }, namespace='/chat')
 	return "",204
 
 @bp.route('/utilisateurs/<int:id>', methods=['PUT'])

@@ -19,9 +19,10 @@
 
         function initialiser_websocket(publications_dst)
         {
-            if ((typeof socket === "undefined") || (! socket.connected))
+            if ((socket === undefined) || (! socket.connected))
             {
-                socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
+                socket = io('http://' + document.domain + ':' + location.port + '/chat');
+				socket.connect()
             }
 
             socket.on('nouvelle_publication', function(data){
@@ -45,7 +46,7 @@
                     },
                 });
 
-                requete = `http://127.0.0.1:5000//api/publications/${data.id}`;
+                requete = `http://127.0.0.1:5000/api/publications/${data.id}`;
                 $.ajax({
                     url: requete,
                     type: 'GET',
@@ -53,12 +54,12 @@
                         xhr.setRequestHeader('Authorization',`Bearer ${jeton}`);
                     },
                     data: { },
-                    success: function (response) {
+                    success: function (reponse) {
                         alert(reponse.corps);
                     id = reponse["id"];
                     if (typeof publications_tableau[id] === 'undefined')
                     {
-                        corps = response["corps"];
+                        corps = reponse["corps"];
                         id_utilisateur = reponse["utilisateur_id"];
 
                         auteur = utilisateurs_tableau[id_utilisateur].nom
@@ -81,6 +82,13 @@
             socket.on('actualiser', function(data){
                 alert(data.bidon);
                 afficher_publications("#utilisateurs", "#publications", 1, 9999)
+            });
+
+			socket.on('connect', function(){
+                alert("connected");
+            });
+			socket.on('disconnect', function(reason){
+                alert("disconnected because " + reason);
             });
 
         };
@@ -151,7 +159,7 @@
                 //$("#auteur". id).css("color", "red");
             });
 
-            //initialiser_websocket(publications_dst);
+            initialiser_websocket(publications_dst);
         }
 
         var jeton

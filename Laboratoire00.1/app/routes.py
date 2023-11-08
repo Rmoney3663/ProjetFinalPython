@@ -23,6 +23,14 @@ def websocket():
     print ("websocket")
     return render_template('websocket.html')
 
+@socketio.on('nouvelle_publication', namespace='/chat')
+def handle_nouvelle_publication(json):
+	print("received json: " + str(json))
+
+@socketio.on('actualiser', namespace='/chat')
+def handle_actualiser(json):
+	print("received json: " + str(json))
+
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
