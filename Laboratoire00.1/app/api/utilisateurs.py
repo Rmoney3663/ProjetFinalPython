@@ -109,8 +109,23 @@ def nosuivre(id):
 	return "",204
 
 @bp.route('/utilisateurs/<int:id>', methods=['PUT'])
+@cross_origin()
+@token_auth.login_required
 def modifier_utilisateur(id):
-    return "modifier"
+	current_user = token_auth.current_user()
+	try:
+		data = request.get_json()  
+	except:
+		print("Erreur pour Json")
+		return "Erreur pour Json", 400
+	
+	nom = data.get("nom")
+	a_propos_de_moi = data.get("propos")
+
+	current_user.nom= nom
+	current_user.a_propos_de_moi = a_propos_de_moi
+	db.session.commit()	
+	return "",204
 
 @bp.route('/utilisateurs/<int:id>', methods=['DELETE'])
 def supprimer_utilisateur(id):

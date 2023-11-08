@@ -8,6 +8,7 @@ import NavigationBar from './Components/NavigationBar';
 import Index from './Components/Index';
 import NotFound from './Components/NotFound'; 
 import ErrorBoundary from './Components/ErrorBoundary';
+import Modifier from './Components/Modifier';
 import { AppProvider } from './Components/AppContext';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
 					<Route path="/Login" element={<Login />} />
 					<Route path="/Ajouter" element={<Ajouter />} />
 					<Route path="/Utilisateur/:id" element={<Utilisateur />} />
+					<Route path="/Modifier" element={<Modifier />} />
 					<Route path="*" element={<NotFound />} />
 				</Routes>
 			</AppProvider>	

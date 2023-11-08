@@ -125,7 +125,7 @@ const Utilisateur = () => {
 
 
  	const modifier = () => {        
-        navigate("/");
+        navigate("/Modifier");
     };
 
 	const suivre = () => {        
@@ -164,7 +164,7 @@ const Utilisateur = () => {
 		 		<View style={styles.container}>	
 					<NavigationBar userId={utilisateur.id} />           
 					<Text style={styles.flash}>Flash: {flash}</Text>
-	 				<Text style={styles.flash}>Je suis {utilisateur.nom}</Text>
+	 				<Text style={styles.flash}>{utilisateur.a_propos_de_moi}</Text>
 					<Text style={styles.flash}>Dernier acces: {utilisateur.dernier_acces}</Text>
 					<Text style={styles.flash}>je suis partisan de {utilisateur.les_partisans.length} utilisateur(s), 
 					Je suis suivi par {utilisateur.partisans.length} utilisateur(s)</Text>
