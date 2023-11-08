@@ -8,27 +8,56 @@ import { useNavigate, useParams } from "react-router-dom";
 import NavigationBar from './NavigationBar';
 import { useAppContext  } from './AppContext';
 
-async function getJson(url, obj, message, setEnChargement, setFlash, setEtat){
-    try
-    {
-        setEnChargement(true)
-        setFlash('')
-        let reponse = await fetch(url, obj);
-        let reponseJson = await reponse.json();
-        setEnChargement(false)
+async function getJson(url, obj, message, setEnChargement, setFlash, setEtat, navigate) {
+	let reponseJson; 
+	try {
+		setEnChargement(true);
+		setFlash('');
+		let reponse = await fetch(url, obj);
+		if (reponse.status === 404) {
+		  navigate("./NotFound"); 
+		} else if (!reponse.ok) {
+		  throw new Error('Network response was not ok');
+		} else {
+		  let reponseJson = await reponse.json();
+		  setEnChargement(false);
 
-        if (reponseJson.erreur === undefined)
-        {
-			setEtat(reponseJson)
-            setFlash(message)
-			console.log(reponseJson)
-        }
-        else
-            setFlash(reponseJson.erreur)
-        return (reponseJson);        
-    } catch(erreur){
-        console.error(erreur);
-    }
+		  if (reponseJson.erreur === undefined) {
+			setEtat(reponseJson);
+			setFlash(message);
+			console.log(reponseJson);
+		  } else {
+			setFlash(reponseJson.erreur);
+		  }
+		}
+		return reponseJson;
+	} catch (erreur) {
+	console.error(erreur);
+	}
+}
+
+
+async function getUser(url, obj, message, setEnChargement, setFlash, chargerUtilisateurLog, chargerUtilisateur){
+	try
+	{
+	    setEnChargement(true)
+	    setFlash('')
+	    let reponse = await fetch(url, obj);
+	    setEnChargement(false)
+
+	    if (reponse.status === 204)
+	    {
+			chargerUtilisateurLog();
+			chargerUtilisateur();
+	        setFlash(message)
+			
+	    }
+	    else
+	        setFlash("fail to follow")
+	    return ;        
+	} catch(erreur){
+	    console.error(erreur);
+	}        
 }
 
 const Utilisateur = () => {
@@ -58,26 +87,75 @@ const Utilisateur = () => {
         }
 		console.log(savedUtilisateur.id)
 		console.log(id)
-		if (user === null){
+
+		if (user === null && jeton != ''){
 			chargerUtilisateur();
 		}
     });
 
 	const chargerUtilisateur = () => {
+		console.log(jeton);
         const url = "http://127.0.0.1:5000/api/utilisateurs/" + id;
         const obj = {
             method: 'GET',
             headers: {
                 Accept: 'application/json',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+ 				'Authorization': 'Bearer ' + jeton,
             },
         };
-        getJson(url, obj, 'Utilisateur chargé.', setEnChargement, setFlash, setUser);
+        getJson(url, obj, 'Utilisateur chargé.', setEnChargement, setFlash, setUser, navigate);
         
     };
 
+	const chargerUtilisateurLog = () => {
+		console.log(jeton);
+        const url = "http://127.0.0.1:5000/api/utilisateurs/" + utilisateur.id;
+        const obj = {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+ 				'Authorization': 'Bearer ' + jeton,
+            },
+        };
+        getJson(url, obj, 'Utilisateur chargé.', setEnChargement, setFlash, setUtilisateur);
+        
+    };
+
+
  	const modifier = () => {        
-        navigate("/");
+        navigate("/Modifier");
+    };
+
+	const suivre = () => {        
+        const url = "http://127.0.0.1:5000/api/suivre/" + id;
+        const obj = {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+ 				'Authorization': 'Bearer ' + jeton,
+            }
+			
+        };
+        getUser(url, obj, 'Vous le suivez maintenant', setEnChargement, setFlash, chargerUtilisateurLog, chargerUtilisateur);
+		
+    };
+
+	const nosuivre = () => {        
+        const url = "http://127.0.0.1:5000/api/ne_plus_suivre/" + id;
+        const obj = {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+ 				'Authorization': 'Bearer ' + jeton,
+            },
+        };
+	getUser(url, obj, 'Vous ne le suivez plus', setEnChargement, setFlash, chargerUtilisateurLog, chargerUtilisateur);
+       
+        
     };
 
 	if (utilisateur !== null && id !== null) {
@@ -86,7 +164,7 @@ const Utilisateur = () => {
 		 		<View style={styles.container}>	
 					<NavigationBar userId={utilisateur.id} />           
 					<Text style={styles.flash}>Flash: {flash}</Text>
-	 				<Text style={styles.flash}>Je suis {utilisateur.nom}</Text>
+	 				<Text style={styles.flash}>{utilisateur.a_propos_de_moi}</Text>
 					<Text style={styles.flash}>Dernier acces: {utilisateur.dernier_acces}</Text>
 					<Text style={styles.flash}>je suis partisan de {utilisateur.les_partisans.length} utilisateur(s), 
 					Je suis suivi par {utilisateur.partisans.length} utilisateur(s)</Text>
@@ -108,7 +186,7 @@ const Utilisateur = () => {
 					<Text style={styles.flash}>je suis partisan de {user.les_partisans.length} utilisateur(s), 
 					Je suis suivi par {user.partisans.length} utilisateur(s)</Text>
 					
-					<TouchableOpacity style={styles.loginBtn} onPress={/* use same thing like under for 2 functiosn to do what you need to do */}>
+					<TouchableOpacity style={styles.loginBtn} onPress={(user.partisans.indexOf(utilisateur.id) != -1) ? nosuivre : suivre}>
 	                	<Text style={styles.loginText}>
 							{(user.partisans.indexOf(utilisateur.id) != -1) ? "Ne plus suivre" : "Suivre"}
 						</Text>
