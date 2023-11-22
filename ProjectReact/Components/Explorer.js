@@ -92,20 +92,28 @@ const Explorer = () => {
     const pagePrecedente = () => {
         numPage -= 10
         localStorage.setItem('num', numPage)
-        window.location.reload(false)
+        navigate("/explorer");
     };
 
     const pageSuivante = () => {
         numPage += 10
         localStorage.setItem('num', numPage)
-        window.location.reload(false)
+        navigate("/explorer");
     };
+
+    if(localStorage.getItem('numPageHome')){
+        localStorage.removeItem('numPageHome')
+    }
+    if(localStorage.getItem('numPageProfil')){
+        localStorage.removeItem('numPageProfil')
+    }
     if(localStorage.getItem('num')){
         numPage = parseInt(localStorage.getItem('num'))
     }
     if(numPage == 0){
-        localStorage.setItem('num',numPage)
+        localStorage.setItem('num',0)
     } 
+
     var itemPublication = []
     if (allUser != null) {
         for (let i = 0 + numPage; i < numPage + 10; i++) {
