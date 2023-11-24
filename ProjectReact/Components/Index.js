@@ -155,13 +155,13 @@ const Index = () => {
                     for (let j = 0; j < utilisateur.les_partisans.length; j++) {
                         if (utilisateur.les_partisans[j] == publication.items[i].utilisateur_id ) {
                             if(allUser.items[k].id == utilisateur.les_partisans[j]){
-                                var items = [allUser.items[k].avatar, publication.items[i].corps]
+                                var items = [allUser.items[k].avatar, publication.items[i].corps, publication.items[i].utilisateur_id]
                                 itemPublication.push(items);
                             }       
                         }
                         if(utilisateur.id == publication.items[i].utilisateur_id){
                             if(allUser.items[k].id == utilisateur.les_partisans[j]){
-                                var items = [utilisateur.avatar, publication.items[i].corps]
+                                var items = [utilisateur.avatar, publication.items[i].corps, publication.items[i].utilisateur_id]
                                 itemPublication.push(items);
                             } 
                         }
@@ -203,6 +203,12 @@ const Index = () => {
             getText(url, obj, 'Votre publication est en ligne!', setEnChargement, setFlash);
         
     };
+
+	const goToNavigationBar = (userId) => {
+ 		 navigate(`/Utilisateur/${userId}`);
+    	
+  	};
+
 
     if (allUser != null && utilisateur != null && publication != null) {        
         return (
@@ -255,7 +261,9 @@ const Index = () => {
                             {itemPublication.map(publications => (
                                 <tr>
                                     <td>
-                                        <Image source={publications[0]} style={styles.avatarSuiveur} />
+					 					<TouchableOpacity onPress={() => goToNavigationBar(publications[2])} >
+										    <Image source={publications[0]} style={styles.avatarSuiveur}  />
+										</TouchableOpacity>                                        
                                     </td>
                                     <td>
                                         <Text style={styles.flash} key={publications[1]}>{publications[1]}</Text>

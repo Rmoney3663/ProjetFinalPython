@@ -40,6 +40,11 @@ const Explorer = () => {
 
     var numPage = 0
 
+ 	const goToNavigationBar = (userId) => {
+ 		 navigate(`/Utilisateur/${userId}`);
+    	
+  	};
+
     useEffect(() => {
         const savedJeton = localStorage.getItem('jeton');
 		const savedUtilisateur = JSON.parse(localStorage.getItem('utilisateur'));
@@ -120,7 +125,7 @@ const Explorer = () => {
             if(i < publication.items.length){
                 for (let j = 0; j < allUser.items.length; j++) {
                     if (allUser.items[j].id == publication.items[i].utilisateur_id) {
-                        var items = [allUser.items[j].avatar, publication.items[i].corps]
+                        var items = [allUser.items[j].avatar, publication.items[i].corps,publication.items[i].utilisateur_id]
                         itemPublication.push(items);
                     }
                 }
@@ -140,7 +145,9 @@ const Explorer = () => {
                             {itemPublication.map(publications => (
                                 <tr>
                                     <td>
-                                        <Image source={publications[0]} style={styles.avatarSuiveur} />
+					 					<TouchableOpacity onPress={() => goToNavigationBar(publications[2])} >
+										    <Image source={publications[0]} style={styles.avatarSuiveur}  />
+										</TouchableOpacity>                                        
                                     </td>
                                     <td>
                                         <Text style={styles.flash} key={publications[1]}>{publications[1]}</Text>
