@@ -5,6 +5,7 @@ import Login from './Components/Login';
 import Ajouter from './Components/Ajouter';
 import Utilisateur from './Components/Utilisateur'; 
 import NavigationBar from './Components/NavigationBar';
+import Explorer from './Components/Explorer'
 import Index from './Components/Index';
 import NotFound from './Components/NotFound'; 
 import ErrorBoundary from './Components/ErrorBoundary';
@@ -21,6 +22,7 @@ function App() {
 					<Route path="/Login" element={<Login />} />
 					<Route path="/Ajouter" element={<Ajouter />} />
 					<Route path="/Utilisateur/:id" element={<Utilisateur />} />
+					<Route path="/explorer" element={<Explorer />} />
 					<Route path="/Modifier" element={<Modifier />} />
 					<Route path="*" element={<NotFound />} />
 				</Routes>

@@ -32,6 +32,27 @@ async function getText(url, obj, message, setEnChargement, setFlash){
     }
 }
 
+async function getJson(url, obj, message, setEnChargement, setFlash, setEtat) {
+    try {
+        setEnChargement(true)
+        setFlash('')
+        let reponse = await fetch(url, obj);
+        let reponseJson = await reponse.json();
+        setEnChargement(false)
+
+        if (reponseJson.erreur === undefined) {
+            setEtat(reponseJson)
+            setFlash(message)
+            console.log(reponseJson)
+        }
+        else
+            setFlash(reponseJson.erreur)
+        return (reponseJson);
+    } catch (erreur) {
+        console.error(erreur);
+    }
+}
+
 const validationSchema = yup.object().shape({
     publication: yup
         .string()
@@ -45,9 +66,9 @@ const Index = () => {
     const [flash, setFlash] = useState('');
  	const {jeton, setJeton, utilisateur, setUtilisateur} = useAppContext();
 	const [publication, setPublication] = useState(null);
+    const [allUser, setAllUser] = useState(null);
     const [enChargement, setEnChargement] = useState(false);
-	//console.log(location);
-
+    var numPageHome = 0
 
     useEffect(() => {
 		const savedJeton = localStorage.getItem('jeton');
@@ -65,8 +86,91 @@ const Index = () => {
         if (jeton === '' || utilisateur === null) {
             navigate("/Login");
         }
+
+        if (publication === null && jeton !== '') {
+            chargerPublication()
+        }
+
+        if (allUser === null && publication !== null) {
+            chargerTousLesUtilisateurs()
+        }
     });
 
+    const chargerPublication = () => {
+        const url = "http://127.0.0.1:5000/api/publications";
+        const obj = {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + jeton,
+            },
+        };
+        getJson(url, obj, 'Publication chargé.', setEnChargement, setFlash, setPublication);
+
+    };
+
+    const chargerTousLesUtilisateurs = () => {
+        const url = "http://127.0.0.1:5000/api/utilisateurs";
+        const obj = {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + jeton,
+            },
+        };
+        getJson(url, obj, 'Tous les utilisateurs ont été chargé.', setEnChargement, setFlash, setAllUser);
+
+    };
+    const pagePrecedente = () => {
+        numPageHome -= 20
+        localStorage.setItem('numPageHome', numPageHome)
+        navigate("/");
+    };
+
+    const pageSuivante = () => {
+        numPageHome += 20
+        localStorage.setItem('numPageHome', numPageHome)
+        navigate("/");
+    };
+    if(localStorage.getItem('num')){
+        localStorage.removeItem('num')
+    }
+    if(localStorage.getItem('numPageProfil')){
+        localStorage.removeItem('numPageProfil')
+    }
+    if(localStorage.getItem('numPageHome')){
+        numPageHome = parseInt(localStorage.getItem('numPageHome'))
+    }
+    if(numPageHome == 0){
+        localStorage.setItem('numPageHome',0)
+    } 
+
+    var itemPublication = []
+    if (allUser != null && utilisateur != null && publication != null) {
+        for (let i = 0 + numPageHome; i < numPageHome + 20; i++) {
+            if(i < publication.items.length){
+                for (let k = 0; k < allUser.items.length; k++){
+                    for (let j = 0; j < utilisateur.les_partisans.length; j++) {
+                        if (utilisateur.les_partisans[j] == publication.items[i].utilisateur_id ) {
+                            if(allUser.items[k].id == utilisateur.les_partisans[j]){
+                                var items = [allUser.items[k].avatar, publication.items[i].corps]
+                                itemPublication.push(items);
+                            }       
+                        }
+                        if(utilisateur.id == publication.items[i].utilisateur_id){
+                            if(allUser.items[k].id == utilisateur.les_partisans[j]){
+                                var items = [utilisateur.avatar, publication.items[i].corps]
+                                itemPublication.push(items);
+                            } 
+                        }
+                    }
+                }
+            }
+        }
+        console.log(itemPublication)
+    }
     
     const quitterSession = () => {
         alert('quitter session');
@@ -100,7 +204,7 @@ const Index = () => {
         
     };
 
-    if (utilisateur !== null) {        
+    if (allUser != null && utilisateur != null && publication != null) {        
         return (
             <View style={styles.container}>			
  				
@@ -145,6 +249,33 @@ const Index = () => {
 			            </React.Fragment>
 				        )}
 		        </Formik>
+                <div>
+                    <table>
+                        <tbody>
+                            {itemPublication.map(publications => (
+                                <tr>
+                                    <td>
+                                        <Image source={publications[0]} style={styles.avatarSuiveur} />
+                                    </td>
+                                    <td>
+                                        <Text style={styles.flash} key={publications[1]}>{publications[1]}</Text>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                {numPageHome > 0 ? (
+                    <TouchableOpacity>
+                        <Text style={styles.text} onPress={() => pagePrecedente()}> Page précédente </Text>
+                    </TouchableOpacity>
+                ) : (<></>)}
+
+                {numPageHome + 20 <= publication.items.length ? (
+                    <TouchableOpacity>
+                        <Text style={styles.text} onPress={() => pageSuivante()}> Page suivante </Text>
+                    </TouchableOpacity>
+                ) : (<></>)}
 		    </View>
         );
     }
@@ -157,7 +288,7 @@ const styles = StyleSheet.create({
         backgroundColor:'#6e4256',
         margin:10,
         width:1080,
-        height:1920
+        height:2120
     },
     logo:{
         width:600,
@@ -168,6 +299,11 @@ const styles = StyleSheet.create({
         width:400,
         height:400,
         margin:50
+    },
+    avatarSuiveur: {
+        width: 100,
+        height: 100,
+        margin: 0
     },
     inputView:{
         width:'80%',

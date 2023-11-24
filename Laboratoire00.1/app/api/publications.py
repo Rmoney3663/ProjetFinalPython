@@ -20,7 +20,7 @@ def get_publication(id):
 @token_auth.login_required
 def get_publications():
     page = request.args.get('page', 1, type=int)
-    par_page = min(request.args.get('par_page', 10, type=int), 100)
+    par_page = min(request.args.get('par_page', 9999, type=int), 100)
     data = Publication.to_collection_dict(Publication.query, page, par_page, 'api.get_publications')
 
     return jsonify(data)
