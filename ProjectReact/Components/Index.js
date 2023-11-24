@@ -159,14 +159,16 @@ const Index = () => {
                                 itemPublication.push(items);
                             }       
                         }
-                        if(utilisateur.id == publication.items[i].utilisateur_id){
-                            if(allUser.items[k].id == utilisateur.les_partisans[j]){
-                                var items = [utilisateur.avatar, publication.items[i].corps, publication.items[i].utilisateur_id]
-                                itemPublication.push(items);
-                            } 
-                        }
+
+                       
+
                     }
                 }
+
+ 				if(utilisateur.id == publication.items[i].utilisateur_id){                           
+                    var items = [utilisateur.avatar, publication.items[i].corps, publication.items[i].utilisateur_id]
+                    itemPublication.push(items);                
+            	}
             }
         }
         console.log(itemPublication)
@@ -260,7 +262,7 @@ const Index = () => {
                         <tbody>
                             {itemPublication.map(publications => (
                                 <tr>
-                                    <td>
+                                   <td>
 					 					<TouchableOpacity onPress={() => goToNavigationBar(publications[2])} >
 										    <Image source={publications[0]} style={styles.avatarSuiveur}  />
 										</TouchableOpacity>                                        
