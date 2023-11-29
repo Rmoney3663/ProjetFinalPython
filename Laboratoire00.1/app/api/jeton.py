@@ -14,13 +14,29 @@ def get_jeton2():
 @cross_origin()
 @basic_auth.login_required
 def get_jeton():
-    print("get_jeton")
+    print("get_jetonJson")
     utilisateur = basic_auth.current_user()  
     # jeton = basic_auth.current_user().get_jeton()
     if utilisateur:
         jeton = utilisateur.get_jeton()
         db.session.commit()
+        print(jsonify(jeton))
         return jsonify(jeton)
+    else:
+        return "Utilisateur non trouvé", 404
+
+@bp.route('/jetontext', methods=['GET'])
+@cross_origin()
+@basic_auth.login_required
+def get_jetonText():
+    print("get_jetonText")
+    utilisateur = basic_auth.current_user()  
+    # jeton = basic_auth.current_user().get_jeton()
+    if utilisateur:
+        jeton = utilisateur.get_jeton()
+        db.session.commit()
+        print(jeton)
+        return {"jeton":jeton}
     else:
         return "Utilisateur non trouvé", 404
 

@@ -12,6 +12,7 @@ import ErrorBoundary from './Components/ErrorBoundary';
 import Modifier from './Components/Modifier';
 import { AppProvider } from './Components/AppContext';
 
+
 function App() {
   return (
     <Router>

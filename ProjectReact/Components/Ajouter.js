@@ -56,7 +56,7 @@ const Ajouter = () => {
 	
 	const login = () => {  
 		setFlash('');      
-        navigate("/");
+        navigate("/Login");
     };
 
  const creerUtilisateur = (values) => {

@@ -44,7 +44,7 @@ def creer_publication():
     print(publication)
     db.session.add(publication)
     db.session.commit()
-    id= publication.id
+    id= publication.utilisateur_id
     socketio.emit('nouvelle_publication', {'id':id }, namespace='/chat')
     return "", 204
 

@@ -13,7 +13,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 bootstrap = Bootstrap(app)
 
 app.config.from_object(Config)

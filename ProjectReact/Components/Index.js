@@ -9,7 +9,8 @@ import NavigationBar from './NavigationBar';
 import Login from './Login';
 import MultilineTextInput from './MultilineTextInput';
 import { useAppContext  } from './AppContext';
-
+import { io } from 'socket.io-client';
+import { domain } from './constance'
 
 async function getText(url, obj, message, setEnChargement, setFlash){
     try
@@ -49,7 +50,8 @@ async function getJson(url, obj, message, setEnChargement, setFlash, setEtat) {
             setFlash(reponseJson.erreur)
         return (reponseJson);
     } catch (erreur) {
-        console.error(erreur);
+        console.error(erreur);		
+		
     }
 }
 
@@ -69,33 +71,83 @@ const Index = () => {
     const [allUser, setAllUser] = useState(null);
     const [enChargement, setEnChargement] = useState(false);
     var numPageHome = 0
+    const [socket, setsocket] = useState(io('http://' + domain + ':5000/chat'));	
+	const [btnVisible, setbtnVisible] = useState(false);
 
     useEffect(() => {
+		const checkFirstBoot = () => {
+		    const isFirstBoot = localStorage.getItem('isFirstBoot') === null;
+
+		    if (isFirstBoot) {
+		        // Perform actions for the first boot
+		        localStorage.setItem('isFirstBoot', 'false');
+
+		        // Erase the data for the keys 'jeton' and 'utilisateur'
+		        localStorage.removeItem('jeton');
+		        localStorage.removeItem('utilisateur');
+		    }
+		};
+
+		checkFirstBoot();
+
 		const savedJeton = localStorage.getItem('jeton');
 		const savedUtilisateur = JSON.parse(localStorage.getItem('utilisateur'));
-		console.log("index ");
+
 		console.log(savedUtilisateur);
-		if (savedJeton && jeton == '') {
-		  setJeton(savedJeton);
+
+		if (savedJeton && jeton === '') {
+		    setJeton(savedJeton);
 		}
 
-		if (savedUtilisateur && utilisateur == null)  {
-		  setUtilisateur(savedUtilisateur);
+		if (savedUtilisateur && !utilisateur) {
+		    setUtilisateur(savedUtilisateur);
 		}
 
-        if (jeton === '' || utilisateur === null) {
-            navigate("/Login");
-        }
+		if (!jeton || !utilisateur) {
+		    navigate("/Login");
+		    return; 
+		}
 
-        if (publication === null && jeton !== '') {
-            chargerPublication()
-        }
+		if (publication === null && jeton) {
+		    chargerPublication()	
+		}
 
-        if (allUser === null && publication !== null) {
-            chargerTousLesUtilisateurs()
-        }
-    });
+		if (allUser === null && publication) {
+	       chargerTousLesUtilisateurs()	
+		}
 
+		console.log("utilisateur : " + (utilisateur?.les_partisans[0] || "No les_partisans"));
+
+		connectWeb();
+
+ 		const beforeUnloadHandler = () => {        
+        	localStorage.removeItem('isFirstBoot');
+	  	};
+
+		window.addEventListener('beforeunload', beforeUnloadHandler);
+		return () => {
+		    window.removeEventListener('beforeunload', beforeUnloadHandler);
+		};
+
+	});
+
+
+	const connectWeb = () => {
+	if (!socket.connected && utilisateur != null)
+        {    
+			socket.connect()
+
+			socket.on('nouvelle_publication', function(data){
+					console.log('heard');
+					console.log('data ' +data.id);
+					console.log("utilisateur sock : " + utilisateur.id);
+					if(utilisateur.les_partisans.includes(data.id) || utilisateur.id === data.id)
+						setbtnVisible(true);
+									
+			});
+        }	
+	}
+	
     const chargerPublication = () => {
         const url = "http://127.0.0.1:5000/api/publications";
         const obj = {
@@ -106,8 +158,7 @@ const Index = () => {
                 'Authorization': 'Bearer ' + jeton,
             },
         };
-        getJson(url, obj, 'Publication chargé.', setEnChargement, setFlash, setPublication);
-
+        getJson(url, obj, 'Publication chargé.', setEnChargement, setFlash, setPublication);		
     };
 
     const chargerTousLesUtilisateurs = () => {
@@ -145,44 +196,39 @@ const Index = () => {
     }
     if(numPageHome == 0){
         localStorage.setItem('numPageHome',0)
-    } 
-
-    var itemPublication = []
-    if (allUser != null && utilisateur != null && publication != null) {
-        for (let i = 0 + numPageHome; i < numPageHome + 20; i++) {
-            if(i < publication.items.length){
-                for (let k = 0; k < allUser.items.length; k++){
-                    for (let j = 0; j < utilisateur.les_partisans.length; j++) {
-                        if (utilisateur.les_partisans[j] == publication.items[i].utilisateur_id ) {
-                            if(allUser.items[k].id == utilisateur.les_partisans[j]){
-                                var items = [allUser.items[k].avatar, publication.items[i].corps, publication.items[i].utilisateur_id]
-                                itemPublication.push(items);
-                            }       
-                        }
-
-                       
-
-                    }
-                }
-
+    } 	
+	
+	var itemPublication = [];
+	if (allUser != null && utilisateur != null && publication != null) {
+	    for (let i = 0 + numPageHome; i < numPageHome + 20; i++) {
+	        if(i < publication.items.length){
+	            for (let k = 0; k < allUser.items.length; k++){
+	                for (let j = 0; j < utilisateur.les_partisans.length; j++) {
+	                    if (utilisateur.les_partisans[j] == publication.items[i].utilisateur_id ) {
+	                        if(allUser.items[k].id == utilisateur.les_partisans[j]){
+	                            var items = [allUser.items[k].avatar, publication.items[i].corps, publication.items[i].utilisateur_id]
+	                            itemPublication.push(items);
+	                        }       
+	                    }
+	                }
+	            }
  				if(utilisateur.id == publication.items[i].utilisateur_id){                           
-                    var items = [utilisateur.avatar, publication.items[i].corps, publication.items[i].utilisateur_id]
-                    itemPublication.push(items);                
-            	}
-            }
-        }
-        console.log(itemPublication)
-    }
-    
+	                var items = [utilisateur.avatar, publication.items[i].corps, publication.items[i].utilisateur_id]
+	                itemPublication.push(items);                
+	        	}
+	        }
+	    }
+	    console.log(itemPublication)
+		
+	}
+
     const quitterSession = () => {
         alert('quitter session');
         setJeton('');
         setUtilisateur(null);
         setFlash('');
 		localStorage.setItem('jeton', '');
-		localStorage.setItem('utilisateur', JSON.stringify(null));
-
-		
+		localStorage.setItem('utilisateur', JSON.stringify(null));		
     };
 
 	 const creerPublication = (values) => {
@@ -202,15 +248,17 @@ const Index = () => {
 					userId:utilisateur.id
 				})
             };
-            getText(url, obj, 'Votre publication est en ligne!', setEnChargement, setFlash);
-        
+            getText(url, obj, 'Votre publication est en ligne!', setEnChargement, setFlash);        
     };
 
 	const goToNavigationBar = (userId) => {
- 		 navigate(`/Utilisateur/${userId}`);
-    	
+ 		 navigate(`/Utilisateur/${userId}`);    	
   	};
-
+ 
+	const makefalse = () => {
+		setbtnVisible(false);
+ 		chargerPublication();    	
+  	};
 
     if (allUser != null && utilisateur != null && publication != null) {        
         return (
@@ -249,10 +297,15 @@ const Index = () => {
 								onPress={() => {
 								if (formikProps.values.publication.trim() !== '') {
 								  formikProps.handleSubmit();
-							}}}>
-
-							<Text style={styles.loginText}>Soumettre</Text>
+								}}}>
+								<Text style={styles.loginText}>Soumettre</Text>
 							</TouchableOpacity>
+
+							{btnVisible && (
+							<TouchableOpacity style={styles.quitterBtn} onPress={makefalse}>
+								<Text style={styles.loginText}>Actualiser</Text>
+							</TouchableOpacity>
+							)}
 
 			            </React.Fragment>
 				        )}
@@ -286,6 +339,8 @@ const Index = () => {
                         <Text style={styles.text} onPress={() => pageSuivante()}> Page suivante </Text>
                     </TouchableOpacity>
                 ) : (<></>)}
+				
+
 		    </View>
         );
     }
