@@ -88,7 +88,7 @@ const Index = () => {
 		    }
 		};
 
-		checkFirstBoot();
+		checkFirstBoot();			
 
 		const savedJeton = localStorage.getItem('jeton');
 		const savedUtilisateur = JSON.parse(localStorage.getItem('utilisateur'));
@@ -101,6 +101,7 @@ const Index = () => {
 
 		if (savedUtilisateur && !utilisateur) {
 		    setUtilisateur(savedUtilisateur);
+			console.log('Saved User : ' + utilisateur);
 		}
 
 		if (!jeton || !utilisateur) {
@@ -116,7 +117,7 @@ const Index = () => {
 	       chargerTousLesUtilisateurs()	
 		}
 
-		console.log("utilisateur : " + (utilisateur?.les_partisans[0] || "No les_partisans"));
+		console.log("utilisateur Partisan: " + (utilisateur?.les_partisans[0] || "No les_partisans"));
 
 		connectWeb();
 
@@ -125,24 +126,28 @@ const Index = () => {
 	  	};
 
 		window.addEventListener('beforeunload', beforeUnloadHandler);
-		return () => {
-		    window.removeEventListener('beforeunload', beforeUnloadHandler);
+			return () => {
+				window.removeEventListener('beforeunload', beforeUnloadHandler);
 		};
 
-	});
+	}, [jeton, utilisateur, publication, allUser, connectWeb]);
 
 
 	const connectWeb = () => {
 	if (!socket.connected && utilisateur != null)
         {    
-			socket.connect()
+			socket.connect();
+			console.log('is connected');
+			socket.off('nouvelle_publication');
 
 			socket.on('nouvelle_publication', function(data){
 					console.log('heard');
 					console.log('data ' +data.id);
 					console.log("utilisateur sock : " + utilisateur.id);
-					if(utilisateur.les_partisans.includes(data.id) || utilisateur.id === data.id)
+					if (utilisateur.les_partisans.includes(data.id) || utilisateur.id === data.id) {
+						console.log('User should be notified');
 						setbtnVisible(true);
+					}
 									
 			});
         }	
@@ -268,6 +273,7 @@ const Index = () => {
 		            initialValues={{ publication: '' }}
 		            onSubmit={(values, actions) => {
 		                creerPublication(values);
+						connectWeb();
 		            }}
 		            validationSchema={validationSchema}
 		        >					
@@ -313,18 +319,19 @@ const Index = () => {
                 <div>
                     <table>
                         <tbody>
-                            {itemPublication.map(publications => (
-                                <tr>
-                                   <td>
-					 					<TouchableOpacity onPress={() => goToNavigationBar(publications[2])} >
-										    <Image source={publications[0]} style={styles.avatarSuiveur}  />
-										</TouchableOpacity>                                        
-                                    </td>
-                                    <td>
-                                        <Text style={styles.flash} key={publications[1]}>{publications[1]}</Text>
-                                    </td>
-                                </tr>
-                            ))}
+                            {itemPublication.map((publications, index) => (
+								<tr key={index}>
+									<td>
+										<TouchableOpacity onPress={() => goToNavigationBar(publications[2])}>
+											<Image source={publications[0]} style={styles.avatarSuiveur} />
+										</TouchableOpacity>
+									</td>
+									<td>
+										<Text style={styles.flash} key={index}>{publications[1]}</Text>
+									</td>
+								</tr>
+							))}
+
                         </tbody>
                     </table>
                 </div>

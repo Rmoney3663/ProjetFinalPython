@@ -30,7 +30,7 @@ def get_utilisateurss():
     page = request.args.get('page', 1, type=int)
     par_page = min(request.args.get('par_page', 10, type=int), 100)
     data = Utilisateur.to_collection_dict(Utilisateur.query, page, par_page, 'api.get_publications')
-
+   
     return jsonify(data)
 
 

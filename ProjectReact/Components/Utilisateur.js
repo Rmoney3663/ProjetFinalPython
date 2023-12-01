@@ -7,6 +7,8 @@ import anonyme from '../assets/anonyme.png';
 import { useNavigate, useParams } from "react-router-dom";
 import NavigationBar from './NavigationBar';
 import { useAppContext } from './AppContext';
+import { io } from 'socket.io-client';
+import { domain } from './constance'
 
 async function getJson(url, obj, message, setEnChargement, setFlash, setEtat, navigate) {
     let reponseJson;
@@ -67,7 +69,8 @@ const Utilisateur = () => {
     const [enChargement, setEnChargement] = useState(false);
     const [user, setUser] = useState(null);
     var numPageProfil = 0
-
+	const [socket, setsocket] = useState(io('http://' + domain + ':5000/chat'));	
+	const [btnVisible, setbtnVisible] = useState(false);
 
     useEffect(() => {
         const savedJeton = localStorage.getItem('jeton');
@@ -93,7 +96,25 @@ const Utilisateur = () => {
         if (publication === null && jeton !== '') {
             chargerPublication()
         }
+
+		connectWeb();
     });
+
+	const connectWeb = () => {
+		if (!socket.connected && utilisateur != null)
+	    {    
+			socket.connect()
+
+			socket.on('nouvelle_publication', function(data){
+				console.log('heard');
+				console.log('data ' +data.id);
+				console.log("utilisateur sock : " + id);
+				if(id === data.id)
+					setbtnVisible(true);
+									
+			});
+	    }	
+	}
 
     const chargerPublication = () => {
         const url = "http://127.0.0.1:5000/api/publications";
@@ -214,9 +235,12 @@ const Utilisateur = () => {
             },
         };
         getUser(url, obj, 'Vous ne le suivez plus', setEnChargement, setFlash, chargerUtilisateurLog, chargerUtilisateur);
-
-
     };
+
+	const makefalse = () => {
+		setbtnVisible(false);
+ 		chargerPublication();    	
+  	};
 
     if (utilisateur != null && publication != null && id !== null) {
         if (id == utilisateur.id) {
@@ -233,6 +257,11 @@ const Utilisateur = () => {
                     </TouchableOpacity>
                     <Text style={styles.title}>Utilisateur: {utilisateur.nom}</Text>
                     <Image source={utilisateur.avatar} style={styles.avatar} />
+					{btnVisible && (
+						<TouchableOpacity style={styles.quitterBtn} onPress={makefalse}>
+							<Text style={styles.loginText}>Actualiser</Text>
+						</TouchableOpacity>
+					)}
                     <div>
                         <table>
                             <tbody>

@@ -46,6 +46,7 @@ class Utilisateur(PaginatedAPIMixin, UserMixin, db.Model):
     avatar = db.Column(db.Text(131072), index=False, unique=False)
     a_propos_de_moi = db.Column(db.String(140))    
     dernier_acces = db.Column(db.DateTime, default=datetime.utcnow)
+	
 
     jeton = db.Column(db.String(32), index=True, unique=True)
     jeton_expiration = db.Column(db.DateTime)
@@ -151,6 +152,7 @@ class Publication(PaginatedAPIMixin, db.Model):
     corps = db.Column(db.String(140))
     horodatage = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     utilisateur_id = db.Column(db.Integer, db.ForeignKey('utilisateur.id'))
+    ImagePub = db.Column(db.Text(131072), index=False, unique=False)
 
     def __repr__(self):
         return '<Publication {}>'.format(self.corps)
@@ -160,7 +162,8 @@ class Publication(PaginatedAPIMixin, db.Model):
             'id': self.id,
             'corps': self.corps,
             'horodatage':self.horodatage.isoformat() + 'Z',
-            'utilisateur_id': self.utilisateur_id
+            'utilisateur_id': self.utilisateur_id,
+			'ImagePub':self.ImagePub
         }
         return data
 
